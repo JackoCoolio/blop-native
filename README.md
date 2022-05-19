@@ -14,7 +14,7 @@ Note: I'm currently only actively supporting this on Windows.
 ## Frameworks/Tools
 
 - **[Tauri](https://github.com/tauri-apps/tauri)** for native application support
-- **[Solid.js](https://github.com/solidjs/solid)** for the frontend web framework
+- **[Solid](https://github.com/solidjs/solid)** for the frontend web framework
 - **[Tokio/Tungstenite](https://github.com/snapview/tokio-tungstenite)** for client-side WebSocket communication
 - **[Tailwind](https://github.com/tailwindlabs/tailwindcss) [(Windicss)](https://github.com/windicss/windicss)** for styling
 - **[Gin](https://github.com/gin-gonic/gin)** for server-side REST API
@@ -23,17 +23,26 @@ Note: I'm currently only actively supporting this on Windows.
 
 # Installation
 
-## Source
+## From Source
+
+Make sure you have the following tools installed.
+
+- Rust (cargo, rustc)
+- Go
+- Yarn
+- Task
+
+### Instructions
 
 1. `git clone https://github.com/jackocoolio/blop-native`
 
-### Client
+#### Client
 
 2. `task client:build`
 3. The compiled binary will be at `client/target/release/blop-native.exe`.
    An MSI installer can be found in `client/target/release/bundle/msi/`.
 
-### Server
+#### Server
 
 2. `task server:build`
 3. The compiled binary will be at `server/blop-backend.exe`
