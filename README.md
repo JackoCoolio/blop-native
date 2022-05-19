@@ -7,19 +7,19 @@ Note: I'm currently only actively supporting this on Windows.
 
 ## Languages
 
-- Rust
-- TypeScript
-- Go (server-side)
+- **Rust** for application backend
+- **TypeScript** for application frontend
+- **Go** for server
 
 ## Frameworks/Tools
 
-- **Tauri** for native application support
-- **Solid.js** for the frontend web framework
-- **Tokio/Tungstenite** for client-side WebSocket communication
-- **Tailwind (Windicss)** for styling
-- **Gin** for server-side REST API
-- **Gorilla WebSocket** for server-side WebSocket API
-- **Task** for task running
+- **[Tauri](https://github.com/tauri-apps/tauri)** for native application support
+- **[Solid.js](https://github.com/solidjs/solid)** for the frontend web framework
+- **[Tokio/Tungstenite](https://github.com/snapview/tokio-tungstenite)** for client-side WebSocket communication
+- **[Tailwind](https://github.com/tailwindlabs/tailwindcss) [(Windicss)](https://github.com/windicss/windicss)** for styling
+- **[Gin](https://github.com/gin-gonic/gin)** for server-side REST API
+- **[Gorilla WebSocket](https://github.com/gorilla/websocket)** for server-side WebSocket API
+- **[Task](https://github.com/go-task/task)** for task running
 
 # Installation
 
