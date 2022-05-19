@@ -1,0 +1,29 @@
+# https://taskfile.dev
+
+version: "3"
+
+includes:
+  client:
+    taskfile: ./client/Taskfile.dist.yaml
+    dir: ./client
+  server:
+    taskfile: ./server/Taskfile.dist.yaml
+    dir: ./server
+  # local taskfile
+  local:
+    taskfile: ./Taskfile.yaml
+    optional: true
+
+tasks:
+  default:
+    # omit description
+    cmds:
+      - task -l
+      - printf "\nTry client:run or server:run to start.\n"
+    silent: true
+  clean:
+    desc: Cleans both the server and the client
+    deps: [client:clean, server:clean]
+  precommit:
+    desc: Prepares the repository for a commit.
+    deps: [client:precommit, server:precommit]

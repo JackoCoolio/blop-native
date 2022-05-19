@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.task/
+
+# local taskfile
+Taskfile.yaml
+Taskfile.yml

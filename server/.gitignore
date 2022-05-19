@@ -1,0 +1,8 @@
+.task/
+build/
+
+.env
+
+# local taskfile
+Taskfile.yaml
+Taskfile.yml

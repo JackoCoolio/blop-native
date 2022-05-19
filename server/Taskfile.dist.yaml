@@ -1,0 +1,40 @@
+# https://taskfile.dev
+
+version: "3"
+
+includes:
+  # local taskfile
+  local:
+    taskfile: ./Taskfile.yaml
+    optional: true
+
+vars:
+  EXT: .exe
+
+tasks:
+  default:
+    cmds:
+      - task: run
+  run:
+    desc: Runs the server.
+    cmds:
+      - go run .
+  clean:
+    desc: Removes the compiled server binary.
+    cmds:
+      - rm -rf build/
+  build:
+    desc: Compiles the server binary.
+    cmds:
+      - mkdir -p build/
+      - go build -o build/
+    sources:
+      - ./**/*.go
+      - ./**/*.mod
+      - ./**/*.sum
+    generates:
+      - blop-backend{{.EXT}}
+  precommit:
+    desc: Prepares the server source code for a commit.
+    cmds:
+      - go fmt

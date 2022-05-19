@@ -1,0 +1,53 @@
+# https://taskfile.dev
+
+version: "3"
+
+includes:
+  # local taskfile
+  local:
+    taskfile: ./Taskfile.yaml
+    optional: true
+
+vars:
+  EXT: .exe
+
+tasks:
+  default:
+    - task: run
+  run:
+    desc: Runs the client application.
+    cmds:
+      - yarn tauri dev
+    env:
+      RUST_BACKTRACE: 1
+  prod:
+    desc: Builds the binary and then runs the client application.
+    cmds:
+      - task: build
+      - src-tauri/target/release/blop-native{{.EXT}}
+  clean:
+    desc: Removes the compiled client binary.
+    dir: src-tauri
+    cmds:
+      - cargo clean
+  build:
+    desc: Compiles the client application binary.
+    cmds:
+      - yarn tauri build
+    sources:
+      - src/**/*
+      - src-tauri/src/**/*
+      - src-tauri/icons/**/*
+      - index.html
+      - package.json
+      - tailwind.config.js
+      - tsconfig.json
+      - vite.config.js
+      - yarn.lock
+    generates:
+      - src-tauri/target/release/blop-native{{.EXT}}
+  precommit:
+    desc: Prepares the client source code for a commit.
+    cmds:
+      - yarn prettier
+      - cd src-tauri && cargo fmt
