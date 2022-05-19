@@ -70,15 +70,14 @@ func main() {
 		logger.Fatalf(err.Error())
 	}
 
-	client, err := connectMongoDB(vars.MONGODB_URI)
-	if err != nil {
-		logger.Fatalf(err.Error())
-	}
+	mongo := InitializeMongoDB(vars.MONGODB_URI)
 
-	db := client.Database("blopdev")
-	if db == nil {
-		logger.Fatalf("database doesn't exist")
-	}
+	// log when connection is ready
+	go func() {
+		for !mongo.IsReady() {
+		}
+		logger.Println("MongoDB connection ready")
+	}()
 
 	connMgr := ConnectionManager{logger, 0, make([]*websocket.Conn, 0)}
 
