@@ -47,7 +47,7 @@ func wshandler(w http.ResponseWriter, r *http.Request, mgr *ConnectionManager) {
 			break
 		}
 
-		mgr.logger.Printf("%v message from WS%v: '%v'\n", t, id, msg)
+		mgr.logger.Printf("%v message from WS%v: '%v'\n", t, id, string(msg[:]))
 
 		outMsg := append([]byte("out: "), msg...)
 
