@@ -4,7 +4,7 @@
 )]
 
 use futures::{lock::Mutex, SinkExt};
-use tauri::{Result, State};
+use tauri::State;
 
 use crate::websocket::{listen, WebSocketState};
 
@@ -22,18 +22,17 @@ struct WSPayload {
 }
 
 #[tauri::command]
-async fn send_message(state: State<'_, WebSocketState>, message: String) -> Result<()> {
+async fn send_message(state: State<'_, WebSocketState>, message: String) -> Result<(), String> {
   let mut guard = state.write.lock().await;
 
   // unwrap option inside MutexGuard
   let conn = match &mut *guard {
     Some(x) => x,
-    None => panic!(""),
+    None => return Err("not connected to WebSocket server".into()),
   };
 
-  // todo: handle errors
-  conn.feed(message.into()).await.unwrap();
-  conn.flush().await.unwrap();
+  conn.feed(message.into()).await.map_err(|e| e.to_string())?;
+  conn.flush().await.map_err(|e| e.to_string())?;
 
   Ok(())
 }
