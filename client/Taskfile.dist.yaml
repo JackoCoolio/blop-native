@@ -46,8 +46,14 @@ tasks:
       - yarn.lock
     generates:
       - src-tauri/target/release/blop-native{{.EXT}}
+  lint:
+    desc: Lints the client source code.
+    cmds:
+      - cd src-tauri/ && cargo check
+      # todo: add eslint
   precommit:
     desc: Prepares the client source code for a commit.
     cmds:
       - yarn prettier
-      - cd src-tauri && cargo fmt
+      - cd src-tauri/ && cargo fmt
+      - task: lint
