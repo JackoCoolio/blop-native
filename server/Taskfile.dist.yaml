@@ -10,6 +10,8 @@ includes:
 
 vars:
   EXT: .exe
+  IMAGENAME: blop-backend-image
+  CONTAINERNAME: blop-backend
 
 tasks:
   default:
@@ -24,16 +26,15 @@ tasks:
     cmds:
       - rm -rf build/
   build:
-    desc: Compiles the server binary.
+    desc: Builds the Docker image.
     cmds:
-      - mkdir -p build/
-      - go build -o build/
-    sources:
-      - ./**/*.go
-      - ./**/*.mod
-      - ./**/*.sum
-    generates:
-      - blop-backend{{.EXT}}
+      - docker build -t {{.IMAGENAME}} .
+  prod:
+    desc: Builds and runs the server with Docker.
+    cmds:
+      - task: build
+      - docker rm -f {{.CONTAINERNAME}}
+      - docker run -d -p 80:8080 --name {{.CONTAINERNAME}} {{.IMAGENAME}}
   precommit:
     desc: Prepares the server source code for a commit.
     cmds:
