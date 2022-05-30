@@ -17,6 +17,7 @@ tasks:
   run:
     desc: Runs the client application.
     cmds:
+      - task: tsrs
       - yarn tauri dev
     env:
       RUST_BACKTRACE: 1
@@ -29,10 +30,19 @@ tasks:
     desc: Removes the compiled client binary.
     dir: src-tauri
     cmds:
-      - cargo clean
+      - cd src-tauri/ && cargo clean
+  tsrs:
+    desc: Generates TypeScript definitions for Tauri event payloads.
+    cmds:
+      - rm -rf src/events/*.d.ts
+      - cd src-tauri/ && cargo test
+      - printf "// Automatically generated. Do not manually edit.\n\n" > src/events/index.tmp
+      - cd src/events/ && for f in *.d.ts ; do echo "export * from './${f%%.*}'" ; done >> index.tmp
+      - mv src/events/index.tmp src/events/index.d.ts
   build:
     desc: Compiles the client application binary.
     cmds:
+      - task: tsrs
       - yarn tauri build
     sources:
       - src/**/*

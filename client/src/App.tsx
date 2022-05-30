@@ -2,14 +2,7 @@ import { Component, For } from "solid-js"
 import { createSignal } from "solid-js"
 import { invoke } from "@tauri-apps/api"
 import { Event, listen } from "@tauri-apps/api/event"
-
-interface MessageEventPayload {
-  message: string
-}
-
-interface LatencyEventPayload {
-  latency: number
-}
+import { LatencyEventPayload, MessageEventPayload } from "./events"
 
 const App: Component = () => {
   // disable context menu (right click)
