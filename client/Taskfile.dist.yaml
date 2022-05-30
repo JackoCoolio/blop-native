@@ -10,6 +10,7 @@ includes:
 
 vars:
   EXT: .exe
+  PYTHON3: '{{.PYTHON3 | default "python"}}'
 
 tasks:
   default:
@@ -42,9 +43,8 @@ tasks:
     cmds:
       - rm -rf src/events/*.d.ts
       - cd src-tauri/ && cargo test
-      - printf "// Automatically generated. Do not manually edit.\n\n" > src/events/index.tmp
-      - cd src/events/ && for f in *.d.ts ; do echo "export * from './${f%%.*}'" ; done >> index.tmp
-      - mv src/events/index.tmp src/events/index.d.ts
+      - | # yaml doesn't parse correctly without this
+        {{.PYTHON3}} src/events/generate-index.py src/events/
   build:
     desc: Compiles the client application binary.
     cmds:

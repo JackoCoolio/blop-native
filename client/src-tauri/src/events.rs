@@ -13,3 +13,11 @@ pub struct LatencyEventPayload {
 pub struct MessageEventPayload {
   pub message: String,
 }
+
+#[derive(Clone, serde::Serialize, TS)]
+#[ts(export, export_to = "../src/events/Notification.d.ts")]
+#[serde(tag = "type", rename_all = "camelCase")]
+pub enum NotificationEventPayload {
+  LostConnection,
+  Broadcast { message: String },
+}
