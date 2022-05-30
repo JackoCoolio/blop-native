@@ -7,7 +7,7 @@ use tokio_tungstenite::{connect_async, tungstenite::Message, MaybeTlsStream, Web
 use url::Url;
 
 use crate::{
-  events::{LatencyEventPayload, MessageEventPayload},
+  events::{LatencyEventPayload, MessageEventPayload, NotificationEventPayload},
   Config,
 };
 
@@ -102,6 +102,9 @@ pub async fn pinger(handle: AppHandle) -> ! {
 pub async fn listen(handle: AppHandle) {
   let state: State<WebSocketState> = handle.state();
   let config: State<Config> = handle.state();
+
+  let mut first_connection = true;
+
   loop {
     println!("connecting to ws server...");
     // acquire write lock ASAP
@@ -113,6 +116,14 @@ pub async fn listen(handle: AppHandle) {
       Err(e) => panic!("{}", e), // panic for now
       Ok(x) => x,
     };
+
+    handle
+      .emit_all(
+        "notification",
+        NotificationEventPayload::Connected { first_connection },
+      )
+      .unwrap();
+    first_connection = false;
 
     let (new_write, new_read) = new_ws_stream.split();
 
@@ -167,6 +178,9 @@ pub async fn listen(handle: AppHandle) {
       })
       .await;
 
+    handle
+      .emit_all("notification", NotificationEventPayload::LostConnection)
+      .unwrap();
     println!("lost connection");
   }
 }

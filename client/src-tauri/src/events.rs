@@ -19,5 +19,13 @@ pub struct MessageEventPayload {
 #[serde(tag = "type", rename_all = "camelCase")]
 pub enum NotificationEventPayload {
   LostConnection,
-  Broadcast { message: String },
+  Connected {
+    /// Whether or not this is the first time we've connected to the server.
+    /// If this is false, it means this is a reconnect event.
+    #[serde(rename = "firstConnection")]
+    first_connection: bool,
+  },
+  Broadcast {
+    message: String,
+  },
 }
