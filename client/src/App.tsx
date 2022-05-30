@@ -3,8 +3,12 @@ import { createSignal } from "solid-js"
 import { invoke } from "@tauri-apps/api"
 import { Event, listen } from "@tauri-apps/api/event"
 
-interface WSPayload {
+interface MessageEventPayload {
   message: string
+}
+
+interface LatencyEventPayload {
+  latency: number
 }
 
 const App: Component = () => {
@@ -14,13 +18,17 @@ const App: Component = () => {
   let input: HTMLInputElement
 
   const [messages, setMessages] = createSignal<string[]>([])
+  const [latency, setLatency] = createSignal<number>(0)
 
-  listen("message", (e: Event<WSPayload>) => {
+  listen("message", (e: Event<MessageEventPayload>) => {
     // verify that payload is string
     console.log(`event from backend:`, e.payload)
 
-    // @ts-ignore
     setMessages([...messages(), e.payload.message])
+  })
+
+  listen("latency", (e: Event<LatencyEventPayload>) => {
+    setLatency(e.payload.latency)
   })
 
   async function sendMessage(): Promise<void> {
@@ -53,6 +61,7 @@ const App: Component = () => {
       <div>
         <For each={messages()}>{(message, i) => <p>{message}</p>}</For>
       </div>
+      <span>{latency()}ms</span>
     </div>
   )
 }

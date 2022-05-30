@@ -5,20 +5,16 @@
 
 use futures::{lock::Mutex, SinkExt};
 use tauri::State;
+use websocket::pinger;
 
 use crate::websocket::{listen, WebSocketState};
 
+pub mod events;
 pub mod websocket;
 
 pub struct Config {
   ws_url: String,
-}
-
-/// The payload that carries messages from the WebSocket server.
-/// Should line up with the WSPayload interface defined in the frontend.
-#[derive(Clone, serde::Serialize)]
-struct WSPayload {
-  message: String,
+  ping_interval: u64,
 }
 
 #[tauri::command]
@@ -42,12 +38,15 @@ async fn main() {
   tauri::Builder::default()
     .manage::<Config>(Config {
       ws_url: "ws://localhost:8080/ws".into(),
+      ping_interval: 5,
     })
     .manage::<WebSocketState>(WebSocketState {
       write: Mutex::from(None),
+      ping: Default::default(),
     })
     .setup(|app| {
       tokio::spawn(listen(app.handle()));
+      tokio::spawn(pinger(app.handle()));
       Ok(())
     })
     .invoke_handler(tauri::generate_handler![send_message])
