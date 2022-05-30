@@ -18,7 +18,7 @@ tasks:
     desc: Sets up the codebase for development and compilation.
     cmds:
       - cd src/ && yarn install
-      - mkdir -p src/dist/
+      - mkdir -p dist/
       - task: tsrs
   run:
     desc: Runs the client application.
