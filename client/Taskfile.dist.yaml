@@ -14,6 +14,12 @@ vars:
 tasks:
   default:
     - task: run
+  bootstrap:
+    desc: Sets up the codebase for development and compilation.
+    cmds:
+      - cd src/ && yarn install
+      - mkdir -p src/dist/
+      - task: tsrs
   run:
     desc: Runs the client application.
     cmds:
@@ -42,7 +48,7 @@ tasks:
   build:
     desc: Compiles the client application binary.
     cmds:
-      - task: tsrs
+      - task: bootstrap
       - yarn tauri build
     sources:
       - src/**/*

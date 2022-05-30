@@ -35,14 +35,15 @@ Make sure you have the following tools installed.
 ### Instructions
 
 1. `git clone https://github.com/jackocoolio/blop-native`
+2. `task bootstrap`
 
 #### Client
 
-2. `task client:build`
-3. The compiled binary will be at `client/target/release/blop-native.exe`.
+3. `task client:build`
+4. The compiled binary will be at `client/target/release/blop-native.exe`.
    An MSI installer can be found in `client/target/release/bundle/msi/`.
 
 #### Server
 
-2. `task server:build`
-3. The compiled binary will be at `server/blop-backend.exe`
+3. `task server:build`
+4. The compiled binary will be at `server/blop-backend.exe`

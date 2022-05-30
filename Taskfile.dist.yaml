@@ -21,6 +21,9 @@ tasks:
       - task -l
       - printf "\nTry client:run or server:run to start.\n"
     silent: true
+  bootstrap:
+    desc: Sets up the codebase for development and compilation.
+    deps: [client:bootstrap]
   clean:
     desc: Cleans both the server and the client
     deps: [client:clean, server:clean]
