@@ -10,6 +10,7 @@ Note: I'm currently only actively supporting this on Windows.
 - **Rust** for application backend
 - **TypeScript** for application frontend
 - **Go** for server
+- **Python** for very simple code generation
 
 ## Frameworks/Tools
 
