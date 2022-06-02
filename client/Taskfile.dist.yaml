@@ -2,12 +2,6 @@
 
 version: "3"
 
-includes:
-  # local taskfile
-  local:
-    taskfile: ./Taskfile.yaml
-    optional: true
-
 vars:
   EXT: .exe
   PYTHON3: '{{.PYTHON3 | default "python"}}'
