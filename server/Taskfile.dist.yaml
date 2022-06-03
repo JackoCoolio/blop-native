@@ -2,12 +2,6 @@
 
 version: "3"
 
-includes:
-  # local taskfile
-  local:
-    taskfile: ./Taskfile.yaml
-    optional: true
-
 vars:
   EXT: .exe
   IMAGENAME: blop-backend-image
