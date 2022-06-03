@@ -9,10 +9,6 @@ includes:
   server:
     taskfile: ./server/Taskfile.dist.yaml
     dir: ./server
-  # local taskfile
-  local:
-    taskfile: ./Taskfile.yaml
-    optional: true
 
 tasks:
   default:
