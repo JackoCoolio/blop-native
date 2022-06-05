@@ -3,34 +3,19 @@
   windows_subsystem = "windows"
 )]
 
-use futures::{lock::Mutex, SinkExt};
-use tauri::State;
-use websocket::pinger;
+use command::{create_user, send_message, validate_password, validate_username};
+use futures::lock::Mutex;
+use user::auth::AuthenticationState;
+use websocket::{listen, pinger, WebSocketState};
 
-use crate::websocket::{listen, WebSocketState};
-
+pub mod command;
 pub mod events;
+pub mod user;
 pub mod websocket;
 
 pub struct Config {
   ws_url: String,
   ping_interval: u64,
-}
-
-#[tauri::command]
-async fn send_message(state: State<'_, WebSocketState>, message: String) -> Result<(), String> {
-  let mut guard = state.write.lock().await;
-
-  // unwrap option inside MutexGuard
-  let conn = match &mut *guard {
-    Some(x) => x,
-    None => return Err("not connected to WebSocket server".into()),
-  };
-
-  conn.feed(message.into()).await.map_err(|e| e.to_string())?;
-  conn.flush().await.map_err(|e| e.to_string())?;
-
-  Ok(())
 }
 
 #[tokio::main]
@@ -44,12 +29,18 @@ async fn main() {
       write: Mutex::from(None),
       ping: Default::default(),
     })
+    .manage::<AuthenticationState>(AuthenticationState::default())
     .setup(|app| {
       tokio::spawn(listen(app.handle()));
       tokio::spawn(pinger(app.handle()));
       Ok(())
     })
-    .invoke_handler(tauri::generate_handler![send_message])
+    .invoke_handler(tauri::generate_handler![
+      send_message,
+      validate_password,
+      validate_username,
+      create_user
+    ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
 }

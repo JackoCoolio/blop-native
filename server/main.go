@@ -44,6 +44,10 @@ func main() {
 		logger.Printf("closed\n")
 	})
 
+	router.POST("/auth/create", func(c *gin.Context) {
+		AuthHandler(c, logger, vars)
+	})
+
 	// needs to be 0.0.0.0 to be able to connect
 	// localhost does NOT work
 	router.Run("localhost:8080")

@@ -11,6 +11,8 @@ import (
 type EnvironmentVars struct {
 	// The URI used to connect to the MongoDB database.
 	MONGODB_URI string
+	// The salt used when hashing passwords.
+	SALT string
 }
 
 // Returns the necessary environment variables for the Blop server.
@@ -24,5 +26,10 @@ func getEnvVariables() (EnvironmentVars, error) {
 		return EnvironmentVars{}, errors.New("MONGODB_URI is not set")
 	}
 
-	return EnvironmentVars{mongoUri}, nil
+	salt := os.Getenv("SALT")
+	if salt == "" {
+		return EnvironmentVars{}, errors.New("SALT is not set")
+	}
+
+	return EnvironmentVars{mongoUri, salt}, nil
 }

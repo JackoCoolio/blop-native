@@ -4,18 +4,9 @@ import { Component, createComponent, onMount } from "solid-js"
 const Home: Component = () => {
   const navigate = useNavigate()
 
-  let idInput: HTMLInputElement
   return (
     <div>
-      <input ref={idInput} type="text" />
-      <button
-        onClick={() => {
-          // go to game with given ID
-          navigate(`/game/${idInput.value}`, { replace: true })
-        }}
-      >
-        Go
-      </button>
+      <Link href="/login">Login</Link>
     </div>
   )
 }
