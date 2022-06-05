@@ -86,6 +86,10 @@ pub fn validate_password(password: &str) -> PasswordValidation {
     if c.is_alphabetic() {
       criteria.alpha = true;
     }
+
+    if SPECIAL_PASSWORD_CHARS.contains(c) {
+      criteria.special = true;
+    }
   }
 
   PasswordValidation::new(criteria)
