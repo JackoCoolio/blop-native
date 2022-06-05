@@ -1,4 +1,4 @@
-package main
+package lib
 
 import (
 	"log"
@@ -8,6 +8,10 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+func CreateConnectionManager(logger *log.Logger) ConnectionManager {
+	return ConnectionManager{logger, sync.RWMutex{}, make(map[uuid.UUID]*Connection)}
+}
+
 type ConnectionManager struct {
 	logger       *log.Logger               // Logger
 	sync.RWMutex                           // Mutex
@@ -16,8 +20,22 @@ type ConnectionManager struct {
 
 // A wrapper for a WebSocket connection.
 type Connection struct {
-	ws             *websocket.Conn // Underlying websocket connection
+	WebSocket      *websocket.Conn // Underlying websocket connection
 	pingHandleLock sync.Mutex      // Mutex
+}
+
+// Executes fn for each connection.
+func (mgr *ConnectionManager) ForEach(fn func(uuid.UUID, *Connection)) {
+	for id, conn := range mgr.connections {
+		fn(id, conn)
+	}
+}
+
+// Concurrently executes fn for each connection.
+func (mgr *ConnectionManager) ForEachParallel(fn func(uuid.UUID, *Connection)) {
+	for id, conn := range mgr.connections {
+		go fn(id, conn)
+	}
 }
 
 // Registers a new connection (concurrency safe). Returns the UUID of the connection, as well as (a copy of) the connection itself.

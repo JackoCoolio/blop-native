@@ -1,6 +1,7 @@
-package main
+package auth
 
 import (
+	"blop-backend/lib"
 	"crypto/sha256"
 	"encoding/hex"
 	"log"
@@ -59,13 +60,21 @@ func isValidPassword(password string) bool {
 	return true
 }
 
-func AuthHandler(c *gin.Context, logger *log.Logger, vars EnvironmentVars) {
+func CreateUserHandler(c *gin.Context, logger *log.Logger, mongo *lib.MongoDBConnection, vars lib.EnvironmentVars) {
 	var body CreateUserParams
 
 	if err := c.BindJSON(&body); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"type": "JSON",
 		})
+	}
+
+	// check if user exists
+	if lib.UsernameExists(body.Username, mongo) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"type": "USERALREADYEXISTS",
+		})
+		return
 	}
 
 	// validate username
@@ -87,7 +96,16 @@ func AuthHandler(c *gin.Context, logger *log.Logger, vars EnvironmentVars) {
 	// hash the password
 	hashedPassword := hash(body.Password, vars.SALT)
 
-	logger.Printf("password: %v -> hash: %v\n", body.Password, hashedPassword)
+	// attempt to create user
+	id, err := lib.CreateUser(body.Username, hashedPassword, mongo)
 
-	c.Status(http.StatusOK)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "COULDN'T CREATE USER",
+		})
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"id": id,
+	})
 }

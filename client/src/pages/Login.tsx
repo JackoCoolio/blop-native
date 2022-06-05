@@ -1,6 +1,17 @@
 import { Link } from "solid-app-router"
-import { Component, createSignal } from "solid-js"
-import { createUser, validatePassword, validateUsername } from "../lib/commands"
+import {
+  Component,
+  createEffect,
+  createMemo,
+  createSignal,
+  onCleanup,
+} from "solid-js"
+import {
+  createUser,
+  userExists,
+  validatePassword,
+  validateUsername,
+} from "../lib/commands"
 import { PasswordValidation } from "../types/user/error/password-validation"
 import { UsernameValidation } from "../types/user/error/username-validation"
 
@@ -27,6 +38,25 @@ const Login: Component = () => {
       special: false,
     })
 
+  const [doesUserExist, setUserExists] = createSignal<boolean>(false)
+
+  let previousUsername: string = undefined
+  const userExistsTimer = setInterval(async () => {
+    // don't bother fetching invalid usernames
+    if (usernameValidation().result == "invalid") {
+      return setUserExists(false)
+    }
+
+    if (username() != previousUsername) {
+      previousUsername = username()
+      setUserExists(await userExists(username()))
+    } else {
+    }
+  }, 1000)
+
+  // clean up interval
+  onCleanup(() => clearInterval(userExistsTimer))
+
   return (
     <div>
       <Link href="/">Go home</Link>
@@ -41,6 +71,7 @@ const Login: Component = () => {
           setUsername(value)
         }}
       ></input>
+      <span>{doesUserExist().toString()}</span>
       <span>{JSON.stringify(usernameValidation())}</span>
       <p>Password</p>
       <input
@@ -56,6 +87,7 @@ const Login: Component = () => {
       <button
         onClick={async () => {
           const out = await createUser(username(), password())
+          console.log(out)
         }}
       >
         Submit

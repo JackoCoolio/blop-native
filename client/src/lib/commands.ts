@@ -46,3 +46,12 @@ export async function createUser(
 ): Promise<CreateUserReturnType> {
   return await invoke("create_user", { username, password })
 }
+
+/**
+ * Queries the database for a user with the given username and returns whether or not the user exists.
+ * @param username the username
+ * @returns whether or not the user exists
+ */
+export async function userExists(username: string): Promise<boolean> {
+  return await invoke("user_exists", { username })
+}

@@ -8,7 +8,10 @@ use ts_rs::TS;
 use crate::{
   user::auth::{
     password::{validate_password as _validate_password, PasswordCriteria, PasswordValidation},
-    username::{validate_username as _validate_username, UsernameCriteria, UsernameValidation},
+    username::{
+      user_exists as _user_exists, validate_username as _validate_username, UsernameCriteria,
+      UsernameValidation,
+    },
     AuthenticationState,
   },
   websocket::WebSocketState,
@@ -30,6 +33,7 @@ pub fn validate_username(username: String) -> UsernameValidation {
 pub enum CreateUserReturnType {
   Success,
   AlreadyLoggedIn,
+  UsernameAlreadyExists,
   InvalidPassword(PasswordCriteria),
   InvalidUsername(UsernameCriteria),
 }
@@ -45,6 +49,7 @@ pub async fn create_user(
   username: String,
   password: String,
 ) -> Result<CreateUserReturnType, String> {
+  println!("create_user()");
   // can't log in while logged in
   if state.logged_in {
     return Ok(CreateUserReturnType::AlreadyLoggedIn);
@@ -59,6 +64,8 @@ pub async fn create_user(
   if let UsernameValidation::Invalid(crit) = _validate_username(&username) {
     return Ok(CreateUserReturnType::InvalidUsername(crit));
   }
+
+  println!("validated");
 
   // create request body
   let body = json!({
@@ -75,9 +82,12 @@ pub async fn create_user(
   {
     // we got a response
     Ok(x) => {
+      println!("got response");
       if x.status() == StatusCode::OK {
+        println!("ok!");
         Ok(CreateUserReturnType::Success)
       } else if x.status() == StatusCode::BAD_REQUEST {
+        println!("bad request");
         // parse response body
         let body = match x.json::<CreateUserErrorResponseBody>().await {
           Ok(x) => x,
@@ -93,6 +103,8 @@ pub async fn create_user(
           Err("internal: invalid username".into())
         } else if body.r#type == "PASSWORD" {
           Err("internal: invalid password".into())
+        } else if body.r#type == "DUPLICATE" {
+          Err("internal: user already exists".into())
         } else {
           Err("internal: invalid server response".into())
         }
@@ -103,6 +115,11 @@ pub async fn create_user(
     // we didn't get a response
     Err(e) => Err(e.to_string()),
   }
+}
+
+#[tauri::command]
+pub async fn user_exists(username: String) -> bool {
+  _user_exists(&username).await
 }
 
 #[tauri::command]

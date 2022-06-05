@@ -1,4 +1,4 @@
-package main
+package lib
 
 import (
 	"fmt"
@@ -22,7 +22,7 @@ func pingHandler(mgr *ConnectionManager, id uuid.UUID, appData string) error {
 
 	// expect a ping around every 30 seconds (client sends a ping every 5 seconds atm)
 	// if we don't receive a ping, we assume that we lost connection
-	conn.ws.SetReadDeadline(time.Now().Add(time.Second * 30))
+	conn.WebSocket.SetReadDeadline(time.Now().Add(time.Second * 30))
 
 	// acquire ping handle lock to indicate that all incoming pings will be handled
 	if !conn.pingHandleLock.TryLock() {
@@ -38,11 +38,11 @@ func pingHandler(mgr *ConnectionManager, id uuid.UUID, appData string) error {
 	time.Sleep(time.Millisecond * time.Duration(rand.Uint32()%20+20))
 
 	// handle the ping
-	conn.ws.WriteControl(websocket.PongMessage, []byte(appData), time.Now().Add(time.Millisecond*500))
+	conn.WebSocket.WriteControl(websocket.PongMessage, []byte(appData), time.Now().Add(time.Millisecond*500))
 	return nil
 }
 
-func wsHandler(w http.ResponseWriter, r *http.Request, mgr *ConnectionManager) {
+func WebSocketHandler(w http.ResponseWriter, r *http.Request, mgr *ConnectionManager) {
 	ws, err := wsupgrader.Upgrade(w, r, nil)
 	if err != nil {
 		mgr.logger.Printf("failed to set websocket upgrade: %+v\n", err)
@@ -84,11 +84,11 @@ func wsHandler(w http.ResponseWriter, r *http.Request, mgr *ConnectionManager) {
 		for id, eachConn := range mgr.connections {
 			go func(id uuid.UUID, eachConn *Connection) {
 				mgr.logger.Printf("broadcast to WS%v\n", id)
-				eachConn.ws.SetWriteDeadline(time.Now().Add(time.Second * 2))
-				err := eachConn.ws.WriteMessage(t, outMsg)
+				eachConn.WebSocket.SetWriteDeadline(time.Now().Add(time.Second * 2))
+				err := eachConn.WebSocket.WriteMessage(t, outMsg)
 				if err != nil {
 					mgr.logger.Printf("write timeout with WS%v\n", id)
-					eachConn.ws.Close()
+					eachConn.WebSocket.Close()
 				}
 			}(id, eachConn)
 		}

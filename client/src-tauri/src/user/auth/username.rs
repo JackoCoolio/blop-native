@@ -1,4 +1,6 @@
+use reqwest::{Client, StatusCode};
 use serde::Serialize;
+use serde_json::json;
 use ts_rs::TS;
 
 const SPECIAL_USERNAME_CHARS: &'static str = "-_";
@@ -55,4 +57,30 @@ pub fn validate_username(username: &str) -> UsernameValidation {
   }
 
   UsernameValidation::new(criteria)
+}
+
+/// Returns true if the user named `username` exists.
+pub async fn user_exists(username: &str) -> bool {
+  let body = json!({
+    "username": username,
+  });
+
+  let out = match Client::new()
+    .get("http://localhost:8080/user/getid")
+    .json(&body)
+    .send()
+    .await
+  {
+    // fallback is that user doesn't exist
+    Err(_) => false,
+    Ok(x) => {
+      if x.status() == StatusCode::OK {
+        true
+      } else {
+        false
+      }
+    }
+  };
+
+  out
 }

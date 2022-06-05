@@ -1,4 +1,4 @@
-package main
+package lib
 
 import (
 	"errors"
@@ -16,7 +16,7 @@ type EnvironmentVars struct {
 }
 
 // Returns the necessary environment variables for the Blop server.
-func getEnvVariables() (EnvironmentVars, error) {
+func GetEnvVariables() (EnvironmentVars, error) {
 	// load .env file if present
 	godotenv.Load(".env")
 

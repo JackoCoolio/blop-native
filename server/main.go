@@ -1,10 +1,12 @@
 package main
 
 import (
+	"blop-backend/api/auth"
+	"blop-backend/api/user"
+	"blop-backend/lib"
 	"log"
 	"os"
 	"os/signal"
-	"sync"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -14,24 +16,24 @@ func main() {
 	logger := log.Default()
 	logger.SetPrefix("[blop-backend] ")
 
-	vars, err := getEnvVariables()
+	vars, err := lib.GetEnvVariables()
 	if err != nil {
 		logger.Fatalf(err.Error())
 	}
 
-	_ = InitializeMongoDB(vars.MONGODB_URI, logger)
+	mongo := lib.InitializeMongoDB(vars.MONGODB_URI, logger)
 
-	connMgr := ConnectionManager{logger, sync.RWMutex{}, make(map[uuid.UUID]*Connection)}
+	connMgr := lib.CreateConnectionManager(logger)
 
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
 	go func() {
 		<-c // wait for signal
 		logger.Println("shutting down...")
-		for _, conn := range connMgr.connections {
+		connMgr.ForEach(func(_ uuid.UUID, c *lib.Connection) {
 			// do any necessary cleanup
-			conn.ws.Close()
-		}
+			c.WebSocket.Close()
+		})
 
 		os.Exit(0)
 	}()
@@ -40,12 +42,16 @@ func main() {
 
 	router.GET("/ws", func(c *gin.Context) {
 		logger.Printf("incoming websocket connection from %v\n", c.Request.RemoteAddr)
-		wsHandler(c.Writer, c.Request, &connMgr)
+		lib.WebSocketHandler(c.Writer, c.Request, &connMgr)
 		logger.Printf("closed\n")
 	})
 
 	router.POST("/auth/create", func(c *gin.Context) {
-		AuthHandler(c, logger, vars)
+		auth.CreateUserHandler(c, logger, mongo, vars)
+	})
+
+	router.GET("/user/getid", func(c *gin.Context) {
+		user.GetUserIdHandler(c, logger, mongo)
 	})
 
 	// needs to be 0.0.0.0 to be able to connect

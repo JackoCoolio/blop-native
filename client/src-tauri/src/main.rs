@@ -3,7 +3,7 @@
   windows_subsystem = "windows"
 )]
 
-use command::{create_user, send_message, validate_password, validate_username};
+use command::{create_user, send_message, user_exists, validate_password, validate_username};
 use futures::lock::Mutex;
 use user::auth::AuthenticationState;
 use websocket::{listen, pinger, WebSocketState};
@@ -39,7 +39,8 @@ async fn main() {
       send_message,
       validate_password,
       validate_username,
-      create_user
+      create_user,
+      user_exists
     ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");
