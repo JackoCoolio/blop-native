@@ -19,14 +19,7 @@ func main() {
 		logger.Fatalf(err.Error())
 	}
 
-	mongo := InitializeMongoDB(vars.MONGODB_URI)
-
-	// log when connection is ready
-	go func() {
-		for !mongo.IsReady() {
-		}
-		logger.Println("MongoDB connection ready")
-	}()
+	_ = InitializeMongoDB(vars.MONGODB_URI, logger)
 
 	connMgr := ConnectionManager{logger, sync.RWMutex{}, make(map[uuid.UUID]*Connection)}
 

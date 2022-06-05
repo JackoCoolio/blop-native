@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"log"
 
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -45,7 +46,7 @@ func connectMongoDB(uri string) (*mongo.Client, error) {
 	return client, nil
 }
 
-func InitializeMongoDB(uri string) *MongoDBConnection {
+func InitializeMongoDB(uri string, logger *log.Logger) *MongoDBConnection {
 	conn := &MongoDBConnection{nil, nil}
 
 	go func() {
@@ -61,6 +62,8 @@ func InitializeMongoDB(uri string) *MongoDBConnection {
 		if db == nil {
 			panic("couldn't get database handle")
 		}
+
+		logger.Println("MongoDB connection ready")
 
 		// important: set database after client so IsReady() is correct
 		conn.client = client
