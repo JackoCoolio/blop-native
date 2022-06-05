@@ -1,6 +1,7 @@
 import { invoke } from "@tauri-apps/api"
-import { GameState } from "../types/game/state"
-import { GameType } from "../types/game/type"
+import { CreateUserReturnType } from "../types/user/error/create-user"
+import { PasswordValidation } from "../types/user/error/password-validation"
+import { UsernameValidation } from "../types/user/error/username-validation"
 
 /**
  * Sends a message to the WebSocket server.
@@ -12,9 +13,36 @@ export async function sendMessage(message: string): Promise<void> {
 }
 
 /**
- * Gets the state of the active game.
- * @returns a game state
+ * Returns the validation for `password`.
+ * @param password the password
+ * @returns the criteria for the password
  */
-export async function getGameState(): Promise<GameState> {
-  return await invoke("get_game_state")
+export async function validatePassword(
+  password: string,
+): Promise<PasswordValidation> {
+  return await invoke("validate_password", { password })
+}
+
+/**
+ * Returns the validation for `username`.
+ * @param username the username
+ * @returns the criteria for the username
+ */
+export async function validateUsername(
+  username: string,
+): Promise<UsernameValidation> {
+  return await invoke("validate_username", { username })
+}
+
+/**
+ * Attempts to create a new user with the given username and password.
+ * @param username the new username
+ * @param password the new password
+ * @returns the result of creating the user
+ */
+export async function createUser(
+  username: string,
+  password: string,
+): Promise<CreateUserReturnType> {
+  return await invoke("create_user", { username, password })
 }

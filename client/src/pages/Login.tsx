@@ -1,6 +1,6 @@
-import { invoke } from "@tauri-apps/api"
 import { Link } from "solid-app-router"
 import { Component, createSignal } from "solid-js"
+import { createUser, validatePassword, validateUsername } from "../lib/commands"
 import { PasswordValidation } from "../types/user/error/password-validation"
 import { UsernameValidation } from "../types/user/error/username-validation"
 
@@ -37,11 +37,7 @@ const Login: Component = () => {
         onInput={async (e) => {
           const value = e.currentTarget.value
 
-          setUsernameValidation(
-            await invoke("validate_username", {
-              username: value,
-            }),
-          )
+          setUsernameValidation(await validateUsername(value))
           setUsername(value)
         }}
       ></input>
@@ -52,22 +48,14 @@ const Login: Component = () => {
         onInput={async (e) => {
           const value = e.currentTarget.value
 
-          setPasswordValidation(
-            await invoke("validate_password", {
-              password: value,
-            }),
-          )
+          setPasswordValidation(await validatePassword(value))
           setPassword(value)
         }}
       ></input>
       <span>{JSON.stringify(passwordValidation())}</span>
       <button
         onClick={async () => {
-          const out = await invoke("create_user", {
-            username: username(),
-            password: "",
-          })
-          console.log(out)
+          const out = await createUser(username(), password())
         }}
       >
         Submit
