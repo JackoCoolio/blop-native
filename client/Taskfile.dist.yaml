@@ -35,7 +35,8 @@ tasks:
   tsrs:
     desc: Generates TypeScript definitions for Tauri event payloads.
     cmds:
-      - rm -rf src/events/*.d.ts
+      - rm -f $(find src/types/ -name "*.d.ts")
+      - rm -f $(find src/events/ -name "*.d.ts")
       - cd src-tauri/ && cargo test
       - | # yaml doesn't parse correctly without this
         {{.PYTHON3}} src/events/generate-index.py src/events/

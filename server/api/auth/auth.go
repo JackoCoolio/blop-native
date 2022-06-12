@@ -7,11 +7,13 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"time"
 	"unicode"
 
 	"github.com/gin-gonic/gin"
 )
 
+// Hashes a password using the SHA-256 algorithm.
 func hash(password string, salt string) string {
 	h := sha256.New()
 
@@ -20,7 +22,7 @@ func hash(password string, salt string) string {
 	return out
 }
 
-type CreateUserParams struct {
+type AuthenticationParams struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
 }
@@ -61,7 +63,7 @@ func isValidPassword(password string) bool {
 }
 
 func CreateUserHandler(c *gin.Context, logger *log.Logger, mongo *lib.MongoDBConnection, vars lib.EnvironmentVars) {
-	var body CreateUserParams
+	var body AuthenticationParams
 
 	if err := c.BindJSON(&body); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
@@ -105,7 +107,56 @@ func CreateUserHandler(c *gin.Context, logger *log.Logger, mongo *lib.MongoDBCon
 		})
 	}
 
+	tokenString, err := lib.CreateSignedJWT(id, []byte(vars.JWT_KEY), time.Now().Add(5*time.Minute))
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": "COULDN'T SIGN JWT",
+		})
+	}
+
 	c.JSON(http.StatusOK, gin.H{
-		"id": id,
+		"id":    id,
+		"token": tokenString,
 	})
+}
+
+func LoginHandler(c *gin.Context, logger *log.Logger, mongo *lib.MongoDBConnection, vars lib.EnvironmentVars) {
+	var body AuthenticationParams
+
+	if err := c.BindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"type": "JSON",
+		})
+		return
+	}
+
+	user, err := lib.GetUserByUsernameUnsafe(body.Username, mongo)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			// TODO: keep this in one place instead of synchronizing it between files
+			"type": "USER",
+		})
+		return
+	}
+
+	hashedPassword := hash(body.Password, vars.SALT)
+
+	if user.HashedPassword == hashedPassword {
+		// correct password
+		tokenString, err := lib.CreateSignedJWT(user.Id, []byte(vars.JWT_KEY), time.Now().Add(5*time.Minute))
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{
+				"message": "COULDN'T SIGN JWT",
+			})
+			return
+		}
+
+		c.JSON(http.StatusOK, gin.H{
+			"id":    user.Id,
+			"token": tokenString,
+		})
+	} else {
+		// incorrect password
+		c.Status(http.StatusUnauthorized)
+	}
 }

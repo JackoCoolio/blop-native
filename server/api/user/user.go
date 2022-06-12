@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt/v4"
 )
 
 type GetUserIdParams struct {
@@ -22,13 +23,47 @@ func GetUserIdHandler(c *gin.Context, logger *log.Logger, mongo *lib.MongoDBConn
 	}
 
 	// query database
-	id := lib.GetUserId(body.Username, mongo)
-
-	if id != "" {
-		c.JSON(http.StatusOK, gin.H{
-			"id": id,
-		})
-	} else {
+	user, err := lib.GetUserByUsername(body.Username, mongo)
+	if err != nil {
 		c.Status(http.StatusNotFound)
+	} else {
+		c.JSON(http.StatusOK, gin.H{
+			"id": user.Id,
+		})
 	}
+}
+
+func MeHandler(c *gin.Context, logger *log.Logger, mongo *lib.MongoDBConnection, vars lib.EnvironmentVars) {
+	userId, err := lib.VerifyJWTFromContext(c, []byte(vars.JWT_KEY), jwt.SigningMethodHS256)
+
+	if err != nil {
+		// we couldn't parse the JWT
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+
+	user, err := lib.GetUserById(userId, mongo)
+	if err != nil {
+		// signals that the local token should be discarded
+		c.Status(http.StatusBadRequest)
+	}
+
+	c.JSON(http.StatusOK, user)
+}
+
+func VerifyHandler(c *gin.Context, logger *log.Logger, mongo *lib.MongoDBConnection, vars lib.EnvironmentVars) {
+	// we don't need the user ID, because the client has it already!
+	// JWTs aren't encrypted, they're signed
+	_, err := lib.VerifyJWTFromContext(c, []byte(vars.JWT_KEY), jwt.SigningMethodHS256)
+
+	if err != nil {
+		if err == lib.ErrMissingAuthHeader || err == lib.ErrMalformedAuthHeader {
+			c.Status(http.StatusBadRequest)
+		} else {
+			c.Status(http.StatusUnauthorized)
+		}
+		return
+	}
+
+	c.Status(http.StatusOK)
 }

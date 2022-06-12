@@ -54,6 +54,18 @@ func main() {
 		user.GetUserIdHandler(c, logger, mongo)
 	})
 
+	router.GET("/user/me", func(c *gin.Context) {
+		user.MeHandler(c, logger, mongo, vars)
+	})
+
+	router.GET("/auth/verify", func(c *gin.Context) {
+		user.VerifyHandler(c, logger, mongo, vars)
+	})
+
+	router.GET("/auth/login", func(c *gin.Context) {
+		auth.LoginHandler(c, logger, mongo, vars)
+	})
+
 	// needs to be 0.0.0.0 to be able to connect
 	// localhost does NOT work
 	router.Run("localhost:8080")

@@ -13,6 +13,8 @@ type EnvironmentVars struct {
 	MONGODB_URI string
 	// The salt used when hashing passwords.
 	SALT string
+	// The key used to sign JWTs.
+	JWT_KEY string
 }
 
 // Returns the necessary environment variables for the Blop server.
@@ -26,10 +28,21 @@ func GetEnvVariables() (EnvironmentVars, error) {
 		return EnvironmentVars{}, errors.New("MONGODB_URI is not set")
 	}
 
+	// SALT
 	salt := os.Getenv("SALT")
 	if salt == "" {
 		return EnvironmentVars{}, errors.New("SALT is not set")
 	}
 
-	return EnvironmentVars{mongoUri, salt}, nil
+	// JWT_KEY
+	jwtKey := os.Getenv("JWT_KEY")
+	if jwtKey == "" {
+		return EnvironmentVars{}, errors.New("JWT_KEY is not set")
+	}
+
+	return EnvironmentVars{
+		MONGODB_URI: mongoUri,
+		SALT:        salt,
+		JWT_KEY:     jwtKey,
+	}, nil
 }

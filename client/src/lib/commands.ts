@@ -1,5 +1,7 @@
 import { invoke } from "@tauri-apps/api"
-import { CreateUserReturnType } from "../types/user/error/create-user"
+import { LoginResult } from "../types/auth/login-result"
+import { VerifyTokenResult } from "../types/auth/verify-token-result"
+import { CreateUserResult } from "../types/user/create-user"
 import { PasswordValidation } from "../types/user/error/password-validation"
 import { UsernameValidation } from "../types/user/error/username-validation"
 
@@ -43,8 +45,29 @@ export async function validateUsername(
 export async function createUser(
   username: string,
   password: string,
-): Promise<CreateUserReturnType> {
+): Promise<CreateUserResult> {
   return await invoke("create_user", { username, password })
+}
+
+/**
+ * Attempts to log in with the given username and password.
+ * @param username the username
+ * @param password the password
+ * @returns the result of attempting to log in
+ */
+export async function login(
+  username: string,
+  password: string,
+): Promise<LoginResult> {
+  return await invoke("log_in", { username, password })
+}
+
+/**
+ * Asks the server to validate our token.
+ * @returns a result of type notLoggedIn, authorized, or expired
+ */
+export async function verifyToken(): Promise<VerifyTokenResult> {
+  return await invoke("verify_token")
 }
 
 /**

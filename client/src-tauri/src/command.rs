@@ -1,18 +1,22 @@
 use futures::SinkExt;
 use reqwest::{Client, StatusCode};
-use serde::{Deserialize, Serialize};
+use serde::Serialize;
 use serde_json::json;
 use tauri::State;
 use ts_rs::TS;
 
 use crate::{
-  user::auth::{
-    password::{validate_password as _validate_password, PasswordCriteria, PasswordValidation},
-    username::{
-      user_exists as _user_exists, validate_username as _validate_username, UsernameCriteria,
-      UsernameValidation,
+  common::BadRequestResponseBody,
+  user::{
+    auth::{
+      password::{validate_password as _validate_password, PasswordValidation},
+      set_optional_mutex_value,
+      username::{
+        user_exists as _user_exists, validate_username as _validate_username, UsernameValidation,
+      },
+      AuthenticationState,
     },
-    AuthenticationState,
+    create_user as _create_user, AuthenticationSuccessResponse, CreateUserResult,
   },
   websocket::WebSocketState,
 };
@@ -27,99 +31,139 @@ pub fn validate_username(username: String) -> UsernameValidation {
   _validate_username(&username)
 }
 
-#[derive(Clone, TS, Serialize)]
-#[ts(export, export_to = "../src/types/user/error/create-user.d.ts")]
-#[serde(rename_all = "camelCase", tag = "result")]
-pub enum CreateUserReturnType {
-  Success,
-  AlreadyLoggedIn,
-  UsernameAlreadyExists,
-  InvalidPassword(PasswordCriteria),
-  InvalidUsername(UsernameCriteria),
-}
-
-#[derive(Deserialize)]
-struct CreateUserErrorResponseBody {
-  r#type: String,
-}
-
 #[tauri::command]
 pub async fn create_user(
   state: State<'_, AuthenticationState>,
   username: String,
   password: String,
-) -> Result<CreateUserReturnType, String> {
-  println!("create_user()");
+) -> Result<CreateUserResult, String> {
   // can't log in while logged in
-  if state.logged_in {
-    return Ok(CreateUserReturnType::AlreadyLoggedIn);
+  if state.token.lock().await.is_logged_in() {
+    return Ok(CreateUserResult::AlreadyLoggedIn);
   }
 
-  // validate password, just in case
-  if let PasswordValidation::Invalid(crit) = _validate_password(&password) {
-    return Ok(CreateUserReturnType::InvalidPassword(crit));
-  }
+  let create_user_result = _create_user(username, password).await;
 
-  // validate username, just in case
-  if let UsernameValidation::Invalid(crit) = _validate_username(&username) {
-    return Ok(CreateUserReturnType::InvalidUsername(crit));
-  }
-
-  println!("validated");
-
-  // create request body
-  let body = json!({
-    "username": username,
-    "password": password,
-  });
-  // println!("{}", body.as_str().unwrap());
-
-  match Client::new()
-    .post("http://localhost:8080/auth/create")
-    .json(&body)
-    .send()
-    .await
-  {
-    // we got a response
-    Ok(x) => {
-      println!("got response");
-      if x.status() == StatusCode::OK {
-        println!("ok!");
-        Ok(CreateUserReturnType::Success)
-      } else if x.status() == StatusCode::BAD_REQUEST {
-        println!("bad request");
-        // parse response body
-        let body = match x.json::<CreateUserErrorResponseBody>().await {
-          Ok(x) => x,
-          Err(_) => {
-            return Err("internal: invalid server response".into());
-          }
-        };
-
-        // match reason for bad request response
-        if body.r#type == "JSON" {
-          Err("internal: invalid request".into())
-        } else if body.r#type == "USERNAME" {
-          Err("internal: invalid username".into())
-        } else if body.r#type == "PASSWORD" {
-          Err("internal: invalid password".into())
-        } else if body.r#type == "DUPLICATE" {
-          Err("internal: user already exists".into())
-        } else {
-          Err("internal: invalid server response".into())
-        }
-      } else {
-        Err("internal: invalid server response".into())
+  match &create_user_result {
+    Ok(x) => match x {
+      CreateUserResult::Success(x) => {
+        set_optional_mutex_value(&state.token, Some(x.token.clone())).await;
       }
-    }
-    // we didn't get a response
-    Err(e) => Err(e.to_string()),
-  }
+      _ => (),
+    },
+    _ => (),
+  };
+
+  create_user_result
 }
 
 #[tauri::command]
 pub async fn user_exists(username: String) -> bool {
   _user_exists(&username).await
+}
+
+#[derive(Clone, TS, Serialize)]
+#[ts(export, export_to = "../src/types/auth/verify-token-result.d.ts")]
+#[serde(rename_all = "camelCase", tag = "result")]
+pub enum VerifyTokenResult {
+  NotLoggedIn,
+  Authorized,
+  Expired,
+}
+
+#[tauri::command]
+pub async fn verify_token(
+  state: State<'_, AuthenticationState>,
+) -> Result<VerifyTokenResult, String> {
+  let maybe_token = state.get_token().await;
+
+  match maybe_token {
+    None => Ok(VerifyTokenResult::NotLoggedIn),
+    Some(token) => {
+      match Client::new()
+        .get("http://localhost:8080/auth/verify")
+        .bearer_auth(token)
+        .send()
+        .await
+      {
+        Err(_) => Err("couldn't verify token".into()),
+        Ok(x) => match x.status() {
+          StatusCode::OK => Ok(VerifyTokenResult::Authorized),
+          StatusCode::BAD_REQUEST => Err("malformed token".into()),
+          StatusCode::UNAUTHORIZED => {
+            AuthenticationState::logout(&state).await;
+            Ok(VerifyTokenResult::Expired)
+          }
+          _ => Err("invalid server response".into()),
+        },
+      }
+    }
+  }
+}
+
+#[derive(Clone, TS, Serialize)]
+#[ts(export, export_to = "../src/types/auth/login-result.d.ts")]
+#[serde(rename_all = "camelCase", tag = "result")]
+pub enum LoginResult {
+  Authorized,
+  Unauthorized,
+  UserDoesNotExist,
+}
+
+#[tauri::command]
+pub async fn log_in(
+  state: State<'_, AuthenticationState>,
+  username: String,
+  password: String,
+) -> Result<LoginResult, String> {
+  let request_body = json!({
+    "username": username,
+    "password": password,
+  });
+
+  match Client::new()
+    .get("http://localhost:8080/auth/login")
+    .json(&request_body)
+    .send()
+    .await
+  {
+    // we couldn't connect
+    Err(e) => Err(format!("couldn't log in! {}", e.to_string())),
+    Ok(x) => match x.status() {
+      StatusCode::OK => {
+        // parse response body
+        let body: AuthenticationSuccessResponse = match x.json().await {
+          Err(_) => return Err("invalid server response (c5d3)".into()),
+          Ok(x) => x,
+        };
+
+        // update token and ID
+        AuthenticationState::login(&state, body.token, body.id).await;
+
+        Ok(LoginResult::Authorized)
+      }
+      // invalid credentials
+      StatusCode::UNAUTHORIZED => Ok(LoginResult::Unauthorized),
+      StatusCode::BAD_REQUEST => {
+        // parse the bad request response
+        // we expect a field that contains the specific type
+        let body: BadRequestResponseBody = match x.json().await {
+          Err(_) => return Err("invalid server response (1908)".into()),
+          Ok(x) => x,
+        };
+
+        // match expected types
+        match body.typ.as_str() {
+          "USER" => Ok(LoginResult::UserDoesNotExist),
+          other => Err(format!("invalid server response (7c63): {}", other)),
+        }
+      }
+      other => Err(format!(
+        "authorization error {}",
+        other.canonical_reason().unwrap()
+      )),
+    },
+  }
 }
 
 #[tauri::command]
