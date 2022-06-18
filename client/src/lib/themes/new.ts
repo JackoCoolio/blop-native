@@ -7,15 +7,17 @@ const newTheme: BlopTheme = {
 
     // primary
     alpha: "#52A6A6",
-    beta: "#F2AD63",
+    beta: "#F2786D",
     gamma: "#50AD5C",
-    delta: "#F2786D",
+    delta: "#F2AD63",
+    epsilon: "#9C51EB",
 
     // secondary
     alphaDark: "#418590",
-    betaDark: "#BF894E",
+    betaDark: "#C45C54",
     gammaDark: "#3C8C46",
-    deltaDark: "#C45C54",
+    deltaDark: "#BF894E",
+    epsilonDark: "#7B3FBA",
   },
 }
 

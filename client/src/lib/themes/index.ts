@@ -2,7 +2,13 @@ import newTheme from "./new"
 import classicTheme from "./classic"
 import { MaybeNullish } from "../util"
 
-interface BlopVariableMap {
+const BLOP_COLORS = ["alpha", "beta", "gamma", "delta", "epsilon"] as const
+export type BlopColor = typeof BLOP_COLORS[number]
+export type ExtendedBlopColor = BlopColor | `${BlopColor}Dark`
+
+type BlopVariableMap = {
+  [key in ExtendedBlopColor]: string
+} & {
   /**
    * The color used for text
    */
@@ -11,32 +17,7 @@ interface BlopVariableMap {
    * The color used in the background
    */
   background: string
-  /**
-   * The first of four blop colors
-   */
-  alpha: string
-  /**
-   * The second of four blop colors
-   */
-  beta: string
-  /**
-   * The third of four blop colors
-   */
-  gamma: string
-  /**
-   * The fourth of four blop colors
-   */
-  delta: string
-  alphaDark: string
-  betaDark: string
-  gammaDark: string
-  deltaDark: string
 }
-
-/**
- * Preset colors available to blop components.
- */
-export type BlopColor = keyof BlopVariableMap
 
 /**
  * Converts a blop color to the corresponding class, and returns "" if the color is invalid.
@@ -45,7 +26,7 @@ export type BlopColor = keyof BlopVariableMap
  */
 export function colorToClass(color: MaybeNullish<BlopColor>): string {
   if (!color) return ""
-  return ["alpha", "beta", "gamma", "delta"].includes(color) ? color : ""
+  return BLOP_COLORS.includes(color) ? color : ""
 }
 
 export interface Theme {

@@ -1,7 +1,7 @@
 import "./button.scss"
 
 import { Component, createSignal, JSX } from "solid-js"
-import { BlopColor, colorToClass } from "../../lib/themes"
+import { ExtendedBlopColor, colorToClass, BlopColor } from "../../lib/themes"
 
 interface IconOptions {
   /**

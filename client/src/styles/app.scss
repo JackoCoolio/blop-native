@@ -36,6 +36,11 @@ This allows efficient theme usage on the frontend.
   --d: var(--delta-dark);
 }
 
+.epsilon {
+  --c: var(--epsilon);
+  --d: var(--epsilon-dark);
+}
+
 body {
   margin: 0;
   padding: 0;

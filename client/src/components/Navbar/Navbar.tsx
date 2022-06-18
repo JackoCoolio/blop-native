@@ -6,7 +6,7 @@ import PlusIcon from "../../assets/plus.svg"
 import SettingsIcon from "../../assets/settings.svg"
 
 import { Component, JSX } from "solid-js"
-import { BlopColor } from "../../lib/themes"
+import { ExtendedBlopColor } from "../../lib/themes"
 import Button from "../Button"
 import { useNavigate } from "solid-app-router"
 import { verifyToken } from "../../lib/commands"
@@ -14,7 +14,7 @@ import { verifyToken } from "../../lib/commands"
 interface NavbarItem {
   tooltip?: string
   text: string
-  color: BlopColor
+  color: ExtendedBlopColor
   onClick?: JSX.EventHandlerUnion<HTMLDivElement, MouseEvent>
   icon?: JSX.Element
 }
@@ -25,6 +25,7 @@ export const Navbar: Component = () => {
   return (
     <div id="navbar" class="flex flex-row align-middle justify-between">
       <div class="navbar-section flex flex-row flex-nowrap justify-start">
+        <LogoIcon class="button-icon" />
         <Button
           color="alpha"
           icon={{
@@ -34,7 +35,7 @@ export const Navbar: Component = () => {
           onClick={() => navigate("/")}
         />
         <Button
-          color="alpha"
+          color="epsilon"
           icon={{
             elt: PlusIcon,
           }}
