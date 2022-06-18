@@ -1,9 +1,39 @@
+@import url('https://fonts.googleapis.com/css2?family=Shippori+Antique&display=swap');
+
 #root {
   position: absolute;
   width: 100%;
   height: 100%;
-  background-color: var(--secondary);
-  color: var(--primary);
+  background-color: var(--background);
+  color: var(--text);
+  font-family: 'Shippori Antique';
+  overflow: hidden;
+}
+
+/*
+--c is an important CSS variable.
+Components can apply these classes which set it.
+This allows efficient theme usage on the frontend.
+*/
+
+.alpha {
+  --c: var(--alpha);
+  --d: var(--alpha-dark)
+}
+
+.beta {
+  --c: var(--beta);
+  --d: var(--beta-dark);
+}
+
+.gamma {
+  --c: var(--gamma);
+  --d: var(--gamma-dark);
+}
+
+.delta {
+  --c: var(--delta);
+  --d: var(--delta-dark);
 }
 
 body {

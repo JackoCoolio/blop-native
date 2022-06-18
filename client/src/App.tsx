@@ -1,11 +1,12 @@
 import { Component, lazy } from "solid-js"
 import { Route, Routes } from "solid-app-router"
 import { listen } from "@tauri-apps/api/event"
-import Game from "./pages/Game"
 
 // lazy loading pages
+const Game = lazy(() => import("./pages/Game"))
 const Home = lazy(() => import("./pages/Home"))
 const Login = lazy(() => import("./pages/Login"))
+const Register = lazy(() => import("./pages/Register"))
 
 const App: Component = () => {
   // disable context menu (right click)
@@ -24,6 +25,7 @@ const App: Component = () => {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
       <Route path="/game/:id" element={<Game id="foo" />} />
     </Routes>
   )

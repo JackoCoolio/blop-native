@@ -1,4 +1,5 @@
 import { Component, JSX, lazy, Suspense } from "solid-js"
+import { LazyComponent } from "../lib/lazy"
 
 const TicTacToe = lazy(() => import("./games/TicTacToe"))
 const RockPaperScissors = lazy(() => import("./games/RockPaperScissors"))
@@ -22,24 +23,28 @@ function fetchGameType(id: string): Promise<GameType> {
   })
 }
 
-type LazyComponent<P = {}> = Component<P> & {
-  preload: () => Promise<{
-    default: Component<P>
-  }>
-}
-
 /**
  * Lazily loads a game component.
  * @param id the game ID
  * @returns a lazy-loaded component
  */
 function getGameComponent(id: string): LazyComponent<GameProps> {
-  return lazy(async () => {
+  return lazy(async (): Promise<{ default: Component }> => {
     const gameType = await fetchGameType(id)
     if (gameType === GameType.TicTacToe) {
       return import("./games/TicTacToe")
     } else if (gameType === GameType.RockPaperScissors) {
       return import("./games/RockPaperScissors")
+    }
+
+    return {
+      default: () => {
+        return (
+          <div>
+            <h1>Error: Invalid game type!</h1>
+          </div>
+        )
+      },
     }
   })
 }

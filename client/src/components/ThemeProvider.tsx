@@ -93,6 +93,10 @@ const ThemeProvider = (props: ParentProps<ThemeProviderProps>): JSX.Element => {
     themeString: props.current ? styles[props.current] : "",
   })
 
+  document.getElementById("theme")!.innerHTML = props.current
+    ? styles[props.current]
+    : ""
+
   const store: ThemeStore = [
     getTheme,
     {

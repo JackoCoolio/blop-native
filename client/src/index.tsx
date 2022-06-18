@@ -7,12 +7,15 @@ import { Router } from "solid-app-router"
 import App from "./App"
 import ThemeProvider from "./components/ThemeProvider"
 import blopThemes from "./lib/themes"
+import AppContainer from "./components/AppContainer"
 
 render(
   () => (
     <Router>
-      <ThemeProvider themes={blopThemes} current="light" prefix="blop-">
-        <App />
+      <ThemeProvider themes={blopThemes} current="new" prefix="blop-">
+        <AppContainer>
+          <App />
+        </AppContainer>
       </ThemeProvider>
     </Router>
   ),

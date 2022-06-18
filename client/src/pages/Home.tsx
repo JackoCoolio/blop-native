@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "solid-app-router"
-import { Component, createComponent, onMount } from "solid-js"
+import { Component } from "solid-js"
 
 const Home: Component = () => {
   const navigate = useNavigate()
@@ -7,6 +7,7 @@ const Home: Component = () => {
   return (
     <div>
       <Link href="/login">Login</Link>
+      <Link href="/register">Register</Link>
     </div>
   )
 }

@@ -1,0 +1,43 @@
+$height: 50px;
+
+#navbar {
+  position: relative;
+  display: flex;
+  height: $height;
+  width: 100%;
+  background-color: var(--background);
+  margin: 15px 15px;
+}
+
+.navbar-section {
+  display: flex;
+  flex-direction: row;
+
+  margin: 0px 20px;
+
+  * {
+    margin: 0 10px;
+  }
+}
+
+.navbar-section:first-child {
+  margin-left: 0;
+}
+
+.navbar-section:last-child {
+  margin-right: 0;
+}
+
+.navbar-button {
+  margin: 5px 15px;
+  color: var(--c);
+}
+
+@media (max-width: 1000px) {
+  #navbar {
+    .button-text {
+      width: 0;
+      margin: 0;
+    }
+  }
+}

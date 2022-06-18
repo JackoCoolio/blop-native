@@ -1,28 +1,58 @@
-import darkTheme from "./dark"
-import lightTheme from "./light"
+import newTheme from "./new"
+import classicTheme from "./classic"
+import { MaybeNullish } from "../util"
 
-interface VariableMap {
-  [variable: string]: string
-}
-
-interface BlopVariableMap extends VariableMap {
+interface BlopVariableMap {
   /**
-   * The primary color
-   * - text
+   * The color used for text
    */
-  primary: string
+  text: string
   /**
-   * The secondary color
-   * - background
+   * The color used in the background
    */
-  secondary: string
+  background: string
+  /**
+   * The first of four blop colors
+   */
+  alpha: string
+  /**
+   * The second of four blop colors
+   */
+  beta: string
+  /**
+   * The third of four blop colors
+   */
+  gamma: string
+  /**
+   * The fourth of four blop colors
+   */
+  delta: string
+  alphaDark: string
+  betaDark: string
+  gammaDark: string
+  deltaDark: string
 }
 
-export interface Theme<VM extends VariableMap = VariableMap> {
-  variables?: VM
+/**
+ * Preset colors available to blop components.
+ */
+export type BlopColor = keyof BlopVariableMap
+
+/**
+ * Converts a blop color to the corresponding class, and returns "" if the color is invalid.
+ * @param color the blop color
+ * @returns a CSS class
+ */
+export function colorToClass(color: MaybeNullish<BlopColor>): string {
+  if (!color) return ""
+  return ["alpha", "beta", "gamma", "delta"].includes(color) ? color : ""
 }
 
-export type BlopTheme = Theme<BlopVariableMap>
+export interface Theme {
+  variables?: BlopVariableMap
+}
+
+export type BlopTheme = Theme
 
 /**
  * A list of themes that are available to the application.
@@ -35,8 +65,8 @@ export interface ThemeList {
  * Themes used by the blop native client.
  */
 const blopThemes: ThemeList = {
-  light: lightTheme,
-  dark: darkTheme,
+  new: newTheme,
+  classic: classicTheme,
 }
 
 export default blopThemes

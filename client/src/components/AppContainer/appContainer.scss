@@ -1,0 +1,21 @@
+@use "../Navbar/navbar.scss" as navbar;
+
+#app-container {
+  position: absolute;
+  display: grid;
+  height: 100vh;
+  width: 100vh;
+  overflow: hidden;
+  margin: 0 0;
+  padding: 0 0;
+  // two rows: navbar and app content
+  grid-template-rows: navbar.$height auto;
+  border: 5px solid blue;
+}
+
+#content {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border: 5px solid red;
+}

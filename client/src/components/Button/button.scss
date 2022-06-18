@@ -1,0 +1,76 @@
+$inactive-height: 6px;
+$hover-height: 4px;
+$active-height: 3px;
+
+$shadow-distance: 3px;
+
+.button {
+  position: relative;
+  height: 50px;
+  display: flex;
+  flex-flow: row nowrap;
+  justify-content: flex-start;
+  align-items: center;
+  border-bottom: 2px solid;
+  border-color: var(--c);
+  border-radius: 25px;
+  background-color: var(--c);
+
+  margin-top: $inactive-height;
+
+  transition: bottom 0.1s ease;
+
+  padding: 0px 15px;
+
+  color: var(--text);
+  text-shadow: 0px $shadow-distance var(--d);
+  font-size: 14pt;
+  user-select: none;
+
+  * {
+    margin: 0 10px;
+  }
+}
+
+.button-face {
+  bottom: $inactive-height;
+}
+
+.button-face:hover {
+  bottom: $hover-height;
+  cursor: pointer;
+}
+
+// Wry is currently bugged, making :active selectors very delayed.
+.button-face:active {
+  background-color: var(--d);
+  bottom: $active-height;
+}
+
+.button:first-child {
+  margin-left: 0;
+}
+
+.button:last-child {
+  margin-right: 0;
+}
+
+.button-shadow {
+  background-color: var(--d);
+  padding: 0 0;
+  border: none;
+}
+
+.button-icon {
+  position: relative;
+  width: fit-content;
+  height: 25px;
+  fill: var(--text);
+  filter: drop-shadow(0px $shadow-distance 0px var(--d));
+}
+
+.button-text {
+  max-width: fit-content;
+  transition: all 1s ease;
+  overflow: hidden;
+}

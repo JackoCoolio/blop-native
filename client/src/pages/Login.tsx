@@ -38,7 +38,7 @@ const Login: Component = () => {
 
   const [verifyResponse, setVerifyResponse] = createSignal<string>("?")
 
-  let previousUsername: string = undefined
+  let previousUsername: string | undefined = undefined
   const userExistsTimer = setInterval(async () => {
     // don't bother fetching invalid usernames
     if (usernameValidation().result == "invalid") {
@@ -55,8 +55,8 @@ const Login: Component = () => {
   // clean up interval
   onCleanup(() => clearInterval(userExistsTimer))
 
-  let loginUsernameField: HTMLInputElement
-  let loginPasswordField: HTMLInputElement
+  let loginUsernameField: Ref<HTMLInputElement>
+  let loginPasswordField: Ref<HTMLInputElement>
 
   return (
     <div>
@@ -105,8 +105,8 @@ const Login: Component = () => {
         <button
           onClick={async () => {
             const out = await login(
-              loginUsernameField.value,
-              loginPasswordField.value,
+              loginUsernameField!.value,
+              loginPasswordField!.value,
             )
             console.log(out)
           }}
