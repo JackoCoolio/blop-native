@@ -25,17 +25,14 @@ export const Navbar: Component = () => {
   return (
     <div id="navbar" class="flex flex-row align-middle justify-between">
       <div class="navbar-section flex flex-row flex-nowrap justify-start">
-        <LogoIcon class="button-icon" />
-        <Button
-          color="alpha"
-          icon={{
-            elt: LogoIcon,
-            y: "8%",
+        <LogoIcon
+          id="logo"
+          onClick={() => {
+            navigate("/")
           }}
-          onClick={() => navigate("/")}
         />
         <Button
-          color="epsilon"
+          color="alpha"
           icon={{
             elt: PlusIcon,
           }}

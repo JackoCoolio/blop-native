@@ -9,6 +9,20 @@ $height: 50px;
   margin: 15px 15px;
 }
 
+#logo {
+  margin: auto 15px;
+  position: relative;
+  height: $height - 10px;
+  fill: var(--text);
+  cursor: pointer;
+
+  transition: transform 0.2s ease;
+}
+
+#logo:hover {
+  transform: scale(1.05);
+}
+
 .navbar-section {
   display: flex;
   flex-direction: row;
