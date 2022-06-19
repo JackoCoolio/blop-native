@@ -53,7 +53,7 @@ export interface GameProps {
   id: string
 }
 
-const Game: Component<GameProps> = (props: GameProps) => {
+const GamePage: Component<GameProps> = (props: GameProps) => {
   const GameComponent = getGameComponent(props.id)
 
   return (
@@ -63,4 +63,4 @@ const Game: Component<GameProps> = (props: GameProps) => {
   )
 }
 
-export default Game
+export default GamePage

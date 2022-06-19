@@ -3,10 +3,10 @@ import { GameProps } from "../Game"
 
 interface RockPaperScissorsProps extends GameProps {}
 
-const RockPaperScissors: Component<RockPaperScissorsProps> = (
+const RockPaperScissorsPage: Component<RockPaperScissorsProps> = (
   props: RockPaperScissorsProps,
 ) => {
   return <div>RockPaperScissors {props.id}</div>
 }
 
-export default RockPaperScissors
+export default RockPaperScissorsPage

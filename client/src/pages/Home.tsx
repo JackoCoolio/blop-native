@@ -1,7 +1,7 @@
 import { Link, useNavigate } from "solid-app-router"
 import { Component } from "solid-js"
 
-const Home: Component = () => {
+const HomePage: Component = () => {
   return (
     <div>
       <Link href="/login">Login</Link>
@@ -10,4 +10,4 @@ const Home: Component = () => {
   )
 }
 
-export default Home
+export default HomePage

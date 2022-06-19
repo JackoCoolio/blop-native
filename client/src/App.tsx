@@ -5,7 +5,6 @@ import { listen } from "@tauri-apps/api/event"
 // lazy loading pages
 const Game = lazy(() => import("./pages/Game"))
 const Home = lazy(() => import("./pages/Home"))
-const Login = lazy(() => import("./pages/Login"))
 const Authorization = lazy(() => import("./pages/Authorization"))
 
 const App: Component = () => {
@@ -24,8 +23,7 @@ const App: Component = () => {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Authorization />} />
+      <Route path="/auth" element={<Authorization />} />
       <Route path="/game/:id" element={<Game id="foo" />} />
     </Routes>
   )
