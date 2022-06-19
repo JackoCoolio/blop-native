@@ -1,6 +1,6 @@
 /* @refresh reload */
 import "windi.css"
-import "./styles/app.scss"
+import "./app.scss"
 import { render } from "solid-js/web"
 import { Router } from "solid-app-router"
 
