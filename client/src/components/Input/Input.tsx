@@ -38,6 +38,8 @@ interface InputProps {
   class?: string
   style?: JSX.CSSProperties
   tooltips?: Tooltips
+  onInput?: JSX.EventHandlerUnion<HTMLInputElement, InputEvent>
+  onEnter?: (value: string) => void
 }
 
 async function updateValidation(
@@ -89,7 +91,15 @@ export const Input: Component<InputProps> = (props) => {
             spellcheck={props.spellcheck}
             placeholder={props.placeholder}
             maxLength={props.maxLength}
+            onKeyPress={(e) => {
+              if (e.key === "Enter") {
+                props.onEnter && props.onEnter(e.currentTarget.value)
+              }
+            }}
             onInput={async (e) => {
+              // call onInput
+              typeof props.onInput === "function" && props.onInput(e)
+
               const value = e.currentTarget.value
               if (props.validateDelay !== 0) {
                 setValidation("unknown")

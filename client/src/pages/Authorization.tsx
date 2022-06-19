@@ -1,7 +1,12 @@
-import { Component, createSignal, onCleanup } from "solid-js"
+import {
+  batch,
+  Component,
+  createEffect,
+  createSignal,
+  onCleanup,
+} from "solid-js"
 import Button from "../components/Button"
 import Input from "../components/Input"
-import { useTheme } from "../components/ThemeProvider"
 import {
   createUser,
   userExists,
@@ -18,6 +23,8 @@ import CheckIcon from "../assets/check.svg"
 const USER_TYPING_COOLDOWN = 600
 
 const AuthorizationPage: Component = () => {
+  const [enabled, setEnabled] = createSignal(false)
+
   const [usernameValidation, setUsernameValidation] =
     createSignal<UsernameValidation>({
       result: "invalid",
@@ -48,24 +55,26 @@ const AuthorizationPage: Component = () => {
   let userExistsTimer: number | undefined
   onCleanup(() => clearTimeout(userExistsTimer))
 
-  const { chooseTheme } = useTheme()[1]
+  const handleCreateUser = async () => {
+    if (enabled()) await createUser(username(), password())
+  }
+
+  // after validation changes, recompute button enabled state
+  createEffect(async () => {
+    if (
+      usernameValidation().result === "valid" &&
+      passwordValidation().result === "valid" &&
+      confirmMatches() &&
+      !(await userExists(username()))
+    ) {
+      setEnabled(true)
+    } else {
+      setEnabled(false)
+    }
+  })
 
   return (
     <div class="w-full h-full">
-      <button
-        onClick={() => {
-          chooseTheme("classic")
-        }}
-      >
-        Classic
-      </button>
-      <button
-        onClick={() => {
-          chooseTheme("new")
-        }}
-      >
-        Light
-      </button>
       <div class="flex flex-col flex-start items-center">
         <div class="flex flex-row w-fit">
           <ProfileIcon class="w-100px h-100px fill-$text mb-20px" />
@@ -82,10 +91,13 @@ const AuthorizationPage: Component = () => {
             label="username"
             placeholder="your username here"
             spellcheck={false}
+            onInput={() => setEnabled(false)}
             validate={async (value) => {
-              setUsername(value)
               const valid = await validateUsername(value)
-              setUsernameValidation(valid)
+              batch(() => {
+                setUsername(value)
+                setUsernameValidation(valid)
+              })
               const exists = await userExists(value)
               return exists ? "invalid" : valid.result
             }}
@@ -126,10 +138,13 @@ const AuthorizationPage: Component = () => {
             placeholder="your password here"
             password
             spellcheck={false}
+            onInput={() => setEnabled(false)}
             validate={async (value) => {
-              setPassword(value)
               const valid = await validatePassword(value)
-              setPasswordValidation(valid)
+              batch(() => {
+                setPassword(value)
+                setPasswordValidation(valid)
+              })
               return valid.result
             }}
             tooltips={{
@@ -182,6 +197,8 @@ const AuthorizationPage: Component = () => {
             placeholder="retype your password"
             password
             spellcheck={false}
+            onEnter={handleCreateUser}
+            onInput={() => setEnabled(false)}
             validate={async (value) => {
               if (value === password() && value !== "") {
                 setConfirmMatches(true)
@@ -208,15 +225,8 @@ const AuthorizationPage: Component = () => {
             icon={{
               elt: CheckIcon,
             }}
-            enabled={
-              usernameValidation().result === "valid" &&
-              passwordValidation().result === "valid" &&
-              confirmMatches()
-            }
-            onClick={async () => {
-              const result = await createUser(username(), password())
-              console.log(result)
-            }}
+            enabled={enabled()}
+            onClick={handleCreateUser}
           />
         </div>
       </div>
