@@ -3,7 +3,6 @@ import "./input.scss"
 import {
   Component,
   createEffect,
-  createMemo,
   createSignal,
   JSX,
   onCleanup,

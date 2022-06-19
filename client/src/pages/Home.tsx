@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "solid-app-router"
+import { Link } from "solid-app-router"
 import { Component } from "solid-js"
 
 const HomePage: Component = () => {

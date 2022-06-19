@@ -61,7 +61,11 @@ tasks:
     desc: Lints the client source code.
     cmds:
       - cd src-tauri/ && cargo check
-      # todo: add eslint
+      - yarn lint
+  fix:
+    desc: Fixes lint errors.
+    cmds:
+      - yarn lint --fix
   precommit:
     desc: Prepares the client source code for a commit.
     cmds:

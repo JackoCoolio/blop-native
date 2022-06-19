@@ -1,9 +1,7 @@
 import { Component } from "solid-js"
 import { GameProps } from "../Game"
 
-interface TicTacToeProps extends GameProps {}
-
-const TicTacToePage: Component<TicTacToeProps> = (props: TicTacToeProps) => {
+const TicTacToePage: Component<GameProps> = (props: GameProps) => {
   return <div>TicTacToe {props.id}</div>
 }
 

@@ -5,19 +5,10 @@ import DashboardIcon from "../../assets/dashboard.svg"
 import PlusIcon from "../../assets/plus.svg"
 import SettingsIcon from "../../assets/settings.svg"
 
-import { Component, JSX } from "solid-js"
-import { ExtendedBlopColor } from "../../lib/themes"
+import { Component } from "solid-js"
 import Button from "../Button"
 import { useNavigate } from "solid-app-router"
 import { verifyToken } from "../../lib/commands"
-
-interface NavbarItem {
-  tooltip?: string
-  text: string
-  color: ExtendedBlopColor
-  onClick?: JSX.EventHandlerUnion<HTMLDivElement, MouseEvent>
-  icon?: JSX.Element
-}
 
 export const Navbar: Component = () => {
   const navigate = useNavigate()
@@ -60,7 +51,7 @@ export const Navbar: Component = () => {
         />
         <Button color="delta" text="Settings" icon={{ elt: SettingsIcon }} />
       </div>
-      <div class="navbar-section flex flex-row flex-nowrap justify-end"></div>
+      <div class="navbar-section flex flex-row flex-nowrap justify-end" />
     </div>
   )
 }

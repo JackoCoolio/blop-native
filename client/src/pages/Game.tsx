@@ -1,8 +1,5 @@
-import { Component, JSX, lazy, Suspense } from "solid-js"
+import { Component, lazy, Suspense } from "solid-js"
 import { LazyComponent } from "../lib/lazy"
-
-const TicTacToe = lazy(() => import("./games/TicTacToe"))
-const RockPaperScissors = lazy(() => import("./games/RockPaperScissors"))
 
 enum GameType {
   TicTacToe,
@@ -14,6 +11,7 @@ enum GameType {
  * @param id the game ID
  * @returns the game type
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function fetchGameType(id: string): Promise<GameType> {
   return new Promise((resolve) => {
     // fake fetch operation

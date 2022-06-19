@@ -59,7 +59,7 @@ const ThemeContext = createContext<ThemeStore>([
     return { name: undefined, theme: {}, themeString: "" }
   },
   {
-    chooseTheme: (_: string) => logThemeNotInitializedError(),
+    chooseTheme: () => logThemeNotInitializedError(),
     clearTheme: () => logThemeNotInitializedError(),
   },
 ])
@@ -93,9 +93,13 @@ const ThemeProvider = (props: ParentProps<ThemeProviderProps>): JSX.Element => {
     themeString: props.current ? styles[props.current] : "",
   })
 
-  document.getElementById("theme")!.innerHTML = props.current
-    ? styles[props.current]
-    : ""
+  const themeElement = document.getElementById("theme")
+  if (!themeElement) {
+    console.error("couldn't find theme element")
+    return props.children
+  }
+
+  themeElement.innerHTML = props.current ? styles[props.current] : ""
 
   const store: ThemeStore = [
     getTheme,
@@ -108,7 +112,7 @@ const ThemeProvider = (props: ParentProps<ThemeProviderProps>): JSX.Element => {
           themeString: styles[name],
         })
 
-        document.getElementById("theme")!.innerHTML = styles[name]
+        themeElement.innerHTML = styles[name]
       },
       clearTheme: () =>
         setTheme({ name: undefined, theme: {}, themeString: "" }),

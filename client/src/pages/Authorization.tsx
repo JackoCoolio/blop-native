@@ -13,10 +13,9 @@ import { UsernameValidation } from "../types/user/error/username-validation"
 
 import ProfileIcon from "../assets/profile.svg"
 import CheckIcon from "../assets/check.svg"
-import PlusIcon from "../assets/plus.svg"
 
 /** How long we wait before assuming that the user has stopped typing. */
-const USER_TYPING_COOLDOWN: number = 600
+const USER_TYPING_COOLDOWN = 600
 
 const AuthorizationPage: Component = () => {
   const [usernameValidation, setUsernameValidation] =
@@ -43,13 +42,13 @@ const AuthorizationPage: Component = () => {
   const [username, setUsername] = createSignal("")
   const [password, setPassword] = createSignal("")
 
-  let confirmPasswordRef: Ref<typeof Input> = undefined
+  const confirmPasswordRef: Ref<typeof Input> = undefined
 
   // timer that fires whenever the user stops typing
   let userExistsTimer: number | undefined
   onCleanup(() => clearTimeout(userExistsTimer))
 
-  const [_, { chooseTheme }] = useTheme()
+  const { chooseTheme } = useTheme()[1]
 
   return (
     <div class="w-full h-full">

@@ -1,6 +1,7 @@
 node_modules/
 dist/
 .task/
+*.log
 
 # local taskfile
 Taskfile.yaml

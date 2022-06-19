@@ -1,13 +1,13 @@
 import "./button.scss"
 
-import { Component, createMemo, createSignal, JSX } from "solid-js"
-import { ExtendedBlopColor, colorToClass, BlopColor } from "../../lib/themes"
+import { Component, createMemo, JSX } from "solid-js"
+import { colorToClass, BlopColor } from "../../lib/themes"
 
 interface IconOptions {
   /**
    * The icon element
    */
-  elt: (props: any) => SVGElement
+  elt: (props: { [attr: string]: unknown }) => SVGElement
   /**
    * The icon's X offset
    */
@@ -36,9 +36,9 @@ interface Props {
  */
 export const Button: Component<Props> = (props) => {
   const Icon = props.icon?.elt
-  const { x = "0", y = "0" } = props.icon ?? {}
-
   const enabled = createMemo(() => props.enabled ?? true)
+
+  const onClick = (e) => props.onClick && props.onClick(e)
 
   return (
     <button
@@ -50,7 +50,7 @@ export const Button: Component<Props> = (props) => {
         class={`${props.class ?? ""} ${
           enabled() ? colorToClass(props.color) : "button-disabled"
         } button button-face`}
-        onClick={props.onClick}
+        onClick={onClick}
         title={props.tooltip}
       >
         {Icon && (
@@ -58,8 +58,8 @@ export const Button: Component<Props> = (props) => {
             class="button-icon"
             style={{
               position: "relative",
-              top: y,
-              left: x,
+              top: props.icon?.x,
+              left: props.icon?.y,
             }}
           />
         )}
