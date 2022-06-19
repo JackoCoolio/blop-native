@@ -4,6 +4,7 @@ const classicTheme: BlopTheme = {
   variables: {
     text: "#FCFCFC",
     background: "#06060F",
+    lightBackground: "#15152E",
 
     // primary
     alpha: "#2F80ED",

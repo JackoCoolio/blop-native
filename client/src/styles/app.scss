@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Shippori+Antique&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Shippori+Antique&display=swap");
 
 #root {
   position: absolute;
@@ -6,8 +6,12 @@
   height: 100%;
   background-color: var(--background);
   color: var(--text);
-  font-family: 'Shippori Antique';
+  font-family: "Shippori Antique";
   overflow: hidden;
+  list-style-type: circle;
+  list-style-position: inside;
+  margin: 0;
+  padding: 0;
 }
 
 /*
@@ -18,7 +22,7 @@ This allows efficient theme usage on the frontend.
 
 .alpha {
   --c: var(--alpha);
-  --d: var(--alpha-dark)
+  --d: var(--alpha-dark);
 }
 
 .beta {

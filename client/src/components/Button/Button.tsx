@@ -1,6 +1,6 @@
 import "./button.scss"
 
-import { Component, createSignal, JSX } from "solid-js"
+import { Component, createMemo, createSignal, JSX } from "solid-js"
 import { ExtendedBlopColor, colorToClass, BlopColor } from "../../lib/themes"
 
 interface IconOptions {
@@ -25,6 +25,10 @@ interface Props {
   onClick?: JSX.EventHandler<HTMLDivElement, MouseEvent>
   icon?: IconOptions
   class?: string
+  /**
+   * Whether or not the button is enabled. Default: `true`
+   */
+  enabled?: boolean
 }
 
 /**
@@ -34,12 +38,18 @@ export const Button: Component<Props> = (props) => {
   const Icon = props.icon?.elt
   const { x = "0", y = "0" } = props.icon ?? {}
 
+  const enabled = createMemo(() => props.enabled ?? true)
+
   return (
-    <div class={`${colorToClass(props.color)} button button-shadow`}>
+    <button
+      class={`${
+        enabled() ? colorToClass(props.color) : "button-disabled"
+      } button button-shadow`}
+    >
       <div
-        class={`${props.class ?? ""} ${colorToClass(
-          props.color,
-        )} button button-face`}
+        class={`${props.class ?? ""} ${
+          enabled() ? colorToClass(props.color) : "button-disabled"
+        } button button-face`}
         onClick={props.onClick}
         title={props.tooltip}
       >
@@ -55,6 +65,6 @@ export const Button: Component<Props> = (props) => {
         )}
         {props.text && <span class="button-text">{props.text}</span>}
       </div>
-    </div>
+    </button>
   )
 }

@@ -17,6 +17,10 @@ type BlopVariableMap = {
    * The color used in the background
    */
   background: string
+  /**
+   * The background color, but lighter
+   */
+  lightBackground: string
 }
 
 /**

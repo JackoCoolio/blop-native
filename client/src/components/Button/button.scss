@@ -18,12 +18,13 @@ $shadow-distance: 3px;
 
   margin-top: $inactive-height;
 
-  transition: bottom 0.1s ease;
+  transition: bottom 0.1s ease, background-color 0.1s ease, opacity 0.1s ease;
 
   padding: 0px 15px;
 
   color: var(--text);
-  text-shadow: 0px $shadow-distance var(--d);
+  text-shadow: 0px $shadow-distance var(--d),
+    0px ($shadow-distance - 1px) var(--d);
   font-size: 14pt;
   user-select: none;
 
@@ -32,17 +33,33 @@ $shadow-distance: 3px;
   }
 }
 
-.button-face {
+.button-disabled {
+  background-color: var(--light-background);
+  bottom: 0px;
+  border-bottom: none;
+  cursor: initial;
+}
+
+.button:focus-visible {
+  outline-offset: 2px;
+  outline: 2px solid var(--text);
+}
+
+.button-face:not(.button-disabled) {
   bottom: $inactive-height;
 }
 
-.button-face:hover {
+.button-face.button-disabled {
+  opacity: 50%;
+}
+
+.button-face:hover:not(.button-disabled) {
   bottom: $hover-height;
   cursor: pointer;
 }
 
-// Wry is currently bugged, making :active selectors very delayed.
-.button-face:active {
+// Wry is currently bugged, making :active selectors very delayed in dev mode.
+.button-face:active:not(.button-disabled) {
   background-color: var(--d);
   bottom: $active-height;
 }
@@ -73,4 +90,5 @@ $shadow-distance: 3px;
   max-width: fit-content;
   transition: all 1s ease;
   overflow: hidden;
+  white-space: nowrap;
 }
