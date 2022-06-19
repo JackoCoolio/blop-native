@@ -1,18 +1,21 @@
-$height: 50px;
+$item-height: 50px;
+$vertical-margin: 15px;
+// margin + content + margin
+$height: $item-height + $vertical-margin * 2;
 
 #navbar {
   position: relative;
   display: flex;
-  height: $height;
+  height: $item-height;
   width: 100%;
   background-color: var(--background);
-  margin: 15px 15px;
+  margin: $vertical-margin 15px;
 }
 
 #logo {
   margin: auto 15px;
   position: relative;
-  height: $height - 10px;
+  height: $item-height - 10px;
   fill: var(--text);
   cursor: pointer;
 

@@ -1,3 +1,5 @@
+import "./appContainer.scss"
+
 import { children, ParentComponent } from "solid-js"
 import Navbar from "../Navbar"
 
