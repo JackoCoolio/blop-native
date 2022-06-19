@@ -14,7 +14,7 @@ import { BlopColor, colorToClass } from "../../lib/themes"
 import CheckIcon from "../../assets/check.svg"
 import XIcon from "../../assets/x-thin.svg"
 import DotsIcon from "../../assets/dots.svg"
-import { Tooltip, TooltipVisibility } from "../Tooltip/Tooltip"
+import Tooltip, { TooltipVisibility } from "../Tooltip"
 
 export type ValidationState = "valid" | "invalid" | "unknown"
 type Validator = (value: string) => Promise<ValidationState>
