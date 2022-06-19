@@ -49,7 +49,7 @@ export const Navbar: Component = () => {
           onClick={async () => {
             const result = await verifyToken()
             if (result.result !== "authorized") {
-              navigate("/register")
+              navigate("/auth")
             } else {
               navigate("/profile")
             }
