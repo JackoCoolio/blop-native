@@ -6,7 +6,7 @@ import { listen } from "@tauri-apps/api/event"
 const Game = lazy(() => import("./pages/Game"))
 const Home = lazy(() => import("./pages/Home"))
 const Login = lazy(() => import("./pages/Login"))
-const Register = lazy(() => import("./pages/Register"))
+const Authorization = lazy(() => import("./pages/Authorization"))
 
 const App: Component = () => {
   // disable context menu (right click)
@@ -25,7 +25,7 @@ const App: Component = () => {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
+      <Route path="/register" element={<Authorization />} />
       <Route path="/game/:id" element={<Game id="foo" />} />
     </Routes>
   )

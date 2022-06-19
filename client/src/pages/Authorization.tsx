@@ -18,7 +18,7 @@ import PlusIcon from "../assets/plus.svg"
 /** How long we wait before assuming that the user has stopped typing. */
 const USER_TYPING_COOLDOWN: number = 600
 
-const Register: Component = () => {
+const Authorization: Component = () => {
   const [usernameValidation, setUsernameValidation] =
     createSignal<UsernameValidation>({
       result: "invalid",
@@ -225,4 +225,4 @@ const Register: Component = () => {
   )
 }
 
-export default Register
+export default Authorization
