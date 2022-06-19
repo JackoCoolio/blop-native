@@ -96,8 +96,6 @@ func GetUserByUsername(username string, mongo *MongoDBConnection) (User, error) 
 
 	// options
 	projection := bson.M{
-		"_id":      1,
-		"username": 1,
 		"password": 0, // exclude password!
 	}
 	opts := options.FindOne().SetProjection(projection)

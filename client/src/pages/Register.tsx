@@ -2,7 +2,12 @@ import { Component, createSignal, onCleanup } from "solid-js"
 import Button from "../components/Button"
 import Input from "../components/Input"
 import { useTheme } from "../components/ThemeProvider"
-import { createUser, validatePassword, validateUsername } from "../lib/commands"
+import {
+  createUser,
+  userExists,
+  validatePassword,
+  validateUsername,
+} from "../lib/commands"
 import { PasswordValidation } from "../types/user/error/password-validation"
 import { UsernameValidation } from "../types/user/error/username-validation"
 
@@ -82,7 +87,8 @@ const Register: Component = () => {
               setUsername(value)
               const valid = await validateUsername(value)
               setUsernameValidation(valid)
-              return valid.result
+              const exists = await userExists(value)
+              return exists ? "invalid" : valid.result
             }}
             validateDelay={USER_TYPING_COOLDOWN}
             tooltips={{
