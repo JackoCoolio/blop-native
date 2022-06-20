@@ -1,0 +1,46 @@
+@use "../../app.scss" as app;
+
+.checkbox {
+  position: relative;
+
+  background-color: var(--d);
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+}
+
+.checkbox-shadow {
+  margin-top: 20px;
+  background-color: var(--d);
+  padding: 0;
+  border: none;
+}
+
+.checkbox-face {
+  background-color: var(--c);
+  position: relative;
+  bottom: app.$sh-inactive;
+  border-bottom: 2px solid var(--c);
+  padding: 5px;
+  transition: bottom 0.1s ease;
+}
+
+.checkbox-hover:hover {
+  bottom: app.$sh-hover;
+}
+
+.checkbox-face.checkbox-checked {
+  background-color: var(--d);
+  bottom: app.$sh-active;
+}
+
+.checkbox-icon {
+  fill: var(--d);
+  width: 100%;
+  height: 100%;
+  transition: fill 0.2s ease;
+}
+
+.checkbox-checked {
+  fill: var(--text);
+}
