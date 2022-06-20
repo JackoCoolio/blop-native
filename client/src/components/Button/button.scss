@@ -91,4 +91,8 @@ $shadow-distance: 3px;
   transition: all 1s ease;
   overflow: hidden;
   white-space: nowrap;
+
+  // allocate more space for shadow
+  padding-bottom: $shadow-distance;
+  margin-bottom: -$shadow-distance;
 }
