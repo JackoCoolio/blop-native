@@ -7,7 +7,7 @@
     "distDir": "../dist"
   },
   "package": {
-    "productName": "blop-native",
+    "productName": "Blop",
     "version": "0.1.0"
   },
   "tauri": {
