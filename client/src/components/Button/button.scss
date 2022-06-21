@@ -22,6 +22,8 @@ $shadow-distance: 3px;
 
   padding: 0px 15px;
 
+  width: fit-content;
+
   color: var(--text);
   text-shadow: 0px $shadow-distance var(--d),
     0px ($shadow-distance - 1px) var(--d);
