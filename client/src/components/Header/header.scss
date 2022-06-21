@@ -1,0 +1,6 @@
+$shadow-distance: 3px;
+
+.header {
+  text-shadow: 0px $shadow-distance var(--d),
+    0px ($shadow-distance - 1px) var(--d);
+}
