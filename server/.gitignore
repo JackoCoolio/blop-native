@@ -1,5 +1,6 @@
 .task/
 build/
+__debug_bin.exe
 
 .env
 
