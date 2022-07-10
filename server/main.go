@@ -3,6 +3,7 @@ package main
 import (
 	"blop-backend/api"
 	"blop-backend/lib"
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -49,5 +50,5 @@ func main() {
 
 	// needs to be 0.0.0.0 to be able to connect
 	// localhost does NOT work
-	router.Run("localhost:8080")
+	router.Run(fmt.Sprintf("localhost:%v", vars.PORT))
 }

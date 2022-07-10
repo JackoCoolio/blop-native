@@ -15,6 +15,8 @@ type EnvironmentVars struct {
 	SALT string
 	// The key used to sign JWTs.
 	JWT_KEY string
+	// The port to bind to
+	PORT string
 }
 
 // Returns the necessary environment variables for the Blop server.
@@ -40,9 +42,16 @@ func GetEnvVariables() (EnvironmentVars, error) {
 		return EnvironmentVars{}, errors.New("JWT_KEY is not set")
 	}
 
+	// PORT
+	port := os.Getenv("PORT")
+	if port == "" {
+		return EnvironmentVars{}, errors.New("PORT is not set")
+	}
+
 	return EnvironmentVars{
 		MONGODB_URI: mongoUri,
 		SALT:        salt,
 		JWT_KEY:     jwtKey,
+		PORT:        port,
 	}, nil
 }
