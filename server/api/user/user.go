@@ -20,6 +20,7 @@ func GetUserIdHandler(c *gin.Context, logger *log.Logger, mongo *lib.MongoDBConn
 		c.JSON(http.StatusBadRequest, gin.H{
 			"type": "JSON",
 		})
+		return
 	}
 
 	// query database
@@ -30,6 +31,29 @@ func GetUserIdHandler(c *gin.Context, logger *log.Logger, mongo *lib.MongoDBConn
 		c.JSON(http.StatusOK, gin.H{
 			"id": user.Id,
 		})
+	}
+}
+
+type GetUserHandlerParams struct {
+	Username string `json:"username"`
+}
+
+func GetUserHandler(c *gin.Context, logger *log.Logger, mongo *lib.MongoDBConnection, vars lib.EnvironmentVars) {
+	var body GetUserHandlerParams
+
+	if err := c.BindJSON(&body); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"type": "JSON",
+		})
+		return
+	}
+
+	user, err := lib.GetUserByUsername(body.Username, mongo)
+	if err != nil {
+		c.Status(http.StatusNotFound)
+	} else {
+		// user is bson
+		c.JSON(http.StatusOK, user)
 	}
 }
 
@@ -47,6 +71,8 @@ func MeHandler(c *gin.Context, logger *log.Logger, mongo *lib.MongoDBConnection,
 		// signals that the local token should be discarded
 		c.Status(http.StatusBadRequest)
 	}
+
+	logger.Printf("me: user: %v\n", user)
 
 	c.JSON(http.StatusOK, user)
 }

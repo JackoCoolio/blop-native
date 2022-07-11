@@ -60,13 +60,17 @@ pub fn validate_username(username: &str) -> UsernameValidation {
 }
 
 /// Returns true if the user named `username` exists.
-pub async fn user_exists(username: &str) -> bool {
+pub async fn user_exists(url: &str, username: &str) -> bool {
+  if !validate_username(username).is_valid() {
+    return false;
+  }
+
   let body = json!({
     "username": username,
   });
 
   let out = match Client::new()
-    .get("http://localhost:8080/user/getid")
+    .get(url)
     .json(&body)
     .send()
     .await

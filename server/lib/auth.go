@@ -2,6 +2,7 @@ package lib
 
 import (
 	"errors"
+	"fmt"
 	"strings"
 	"time"
 
@@ -51,8 +52,10 @@ func VerifyJWT(tokenString string, key []byte, algo jwt.SigningMethod) (string, 
 	if err != nil {
 		if err == jwt.ErrSignatureInvalid {
 			return "invalid", nil // "invalid" isn't a valid xid, so we can use it for this
+		} else if err == jwt.ErrTokenExpired {
+			return "expired", nil
 		} else {
-			return "", err
+			return "error", err
 		}
 	}
 
@@ -61,6 +64,8 @@ func VerifyJWT(tokenString string, key []byte, algo jwt.SigningMethod) (string, 
 	if !token.Valid {
 		return "", nil
 	}
+
+	fmt.Printf("userid: %v\n", claims.UserID)
 
 	return claims.UserID, nil
 }

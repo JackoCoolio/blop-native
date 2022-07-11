@@ -68,3 +68,5 @@ export const Button: Component<Props> = (props) => {
     </button>
   )
 }
+
+export type { Props as ButtonProps }

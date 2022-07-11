@@ -16,9 +16,9 @@ use crate::{
       },
       AuthenticationState,
     },
-    create_user as _create_user, AuthenticationSuccessResponse, CreateUserResult,
+    create_user as _create_user, AuthenticationSuccessResponse, CreateUserResult, User,
   },
-  websocket::WebSocketState,
+  websocket::WebSocketState, Config,
 };
 
 #[tauri::command]
@@ -33,21 +33,22 @@ pub fn validate_username(username: String) -> UsernameValidation {
 
 #[tauri::command]
 pub async fn create_user(
-  state: State<'_, AuthenticationState>,
+  auth_state: State<'_, AuthenticationState>,
+  config_state: State<'_, Config>,
   username: String,
   password: String,
 ) -> Result<CreateUserResult, String> {
   // can't log in while logged in
-  if state.token.lock().await.is_logged_in() {
+  if auth_state.token.lock().await.is_logged_in() {
     return Ok(CreateUserResult::AlreadyLoggedIn);
   }
 
-  let create_user_result = _create_user(username, password).await;
+  let create_user_result = _create_user(&config_state.get_api_url("/auth/create"), username, password).await;
 
   match &create_user_result {
     Ok(x) => match x {
       CreateUserResult::Success(x) => {
-        set_optional_mutex_value(&state.token, Some(x.token.clone())).await;
+        set_optional_mutex_value(&auth_state.token, Some(x.token.clone())).await;
       }
       _ => (),
     },
@@ -58,8 +59,9 @@ pub async fn create_user(
 }
 
 #[tauri::command]
-pub async fn user_exists(username: String) -> bool {
-  _user_exists(&username).await
+pub async fn user_exists(config_state: State<'_, Config>, username: String) -> Result<bool, String> {
+  // TODO: don't just Ok this
+  Ok(_user_exists(&config_state.get_api_url("/user/getid"), &username).await)
 }
 
 #[derive(Clone, TS, Serialize)]
@@ -73,15 +75,16 @@ pub enum VerifyTokenResult {
 
 #[tauri::command]
 pub async fn verify_token(
-  state: State<'_, AuthenticationState>,
+  auth_state: State<'_, AuthenticationState>,
+  config_state: State<'_, Config>,
 ) -> Result<VerifyTokenResult, String> {
-  let maybe_token = state.get_token().await;
+  let maybe_token = auth_state.get_token().await;
 
   match maybe_token {
     None => Ok(VerifyTokenResult::NotLoggedIn),
     Some(token) => {
       match Client::new()
-        .get("http://localhost:8080/auth/verify")
+        .get(config_state.get_api_url("/auth/verify"))
         .bearer_auth(token)
         .send()
         .await
@@ -91,7 +94,7 @@ pub async fn verify_token(
           StatusCode::OK => Ok(VerifyTokenResult::Authorized),
           StatusCode::BAD_REQUEST => Err("malformed token".into()),
           StatusCode::UNAUTHORIZED => {
-            AuthenticationState::logout(&state).await;
+            AuthenticationState::logout(&auth_state).await;
             Ok(VerifyTokenResult::Expired)
           }
           _ => Err("invalid server response".into()),
@@ -112,7 +115,8 @@ pub enum LoginResult {
 
 #[tauri::command]
 pub async fn log_in(
-  state: State<'_, AuthenticationState>,
+  auth_state: State<'_, AuthenticationState>,
+  config_state: State<'_, Config>,
   username: String,
   password: String,
 ) -> Result<LoginResult, String> {
@@ -122,7 +126,7 @@ pub async fn log_in(
   });
 
   match Client::new()
-    .get("http://localhost:8080/auth/login")
+    .get(config_state.get_api_url("/auth/login"))
     .json(&request_body)
     .send()
     .await
@@ -138,7 +142,7 @@ pub async fn log_in(
         };
 
         // update token and ID
-        AuthenticationState::login(&state, body.token, body.id).await;
+        AuthenticationState::login(&auth_state, body.token, body.id).await;
 
         Ok(LoginResult::Authorized)
       }
@@ -163,6 +167,48 @@ pub async fn log_in(
         other.canonical_reason().unwrap()
       )),
     },
+  }
+}
+
+#[derive(Serialize, TS)]
+#[ts(export, export_to = "../src/types/user/info.d.ts")]
+#[serde(tag = "type", rename_all = "camelCase")]
+pub enum MyInfoResult {
+  Success(User),
+  NotLoggedIn,
+}
+
+#[tauri::command]
+pub async fn my_info(auth_state: State<'_, AuthenticationState>, config_state: State<'_, Config>) -> Result<MyInfoResult, String> {
+  // TODO: figure out locks here. maybe rework/replace optionalstate
+  let token = match auth_state.get_token().await {
+    None => {
+      AuthenticationState::logout(&auth_state).await;
+      return Ok(MyInfoResult::NotLoggedIn);
+    }
+    Some(x) => x,
+  };
+
+  // TODO: don't unwrap. this is bad
+  let resp = Client::new()
+  .get(config_state.get_api_url("/user/me"))
+  .bearer_auth(token)
+  .send()
+  .await.unwrap();
+
+  match resp.status() {
+    StatusCode::OK => {
+      let body: User = match resp.json().await {
+        Err(_) => return Err("invalid server response (c5d3)".into()),
+        Ok(x) => x,
+      };
+
+      Ok(MyInfoResult::Success(body))
+    }
+    other => Err(format!(
+      "authorization error {}",
+      other.canonical_reason().unwrap()
+    )),
   }
 }
 

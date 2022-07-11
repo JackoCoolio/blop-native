@@ -143,7 +143,7 @@ func LoginHandler(c *gin.Context, logger *log.Logger, mongo *lib.MongoDBConnecti
 
 	if user.HashedPassword == hashedPassword {
 		// correct password
-		tokenString, err := lib.CreateSignedJWT(user.Id, []byte(vars.JWT_KEY), time.Now().Add(5*time.Minute))
+		tokenString, err := lib.CreateSignedJWT(user.Id, []byte(vars.JWT_KEY), time.Now().Add(30*time.Second))
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{
 				"message": "COULDN'T SIGN JWT",

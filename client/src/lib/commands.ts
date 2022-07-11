@@ -4,6 +4,7 @@ import { VerifyTokenResult } from "../types/auth/verify-token-result"
 import { CreateUserResult } from "../types/user/create-user"
 import { PasswordValidation } from "../types/user/error/password-validation"
 import { UsernameValidation } from "../types/user/error/username-validation"
+import { MyInfoResult } from "../types/user/info"
 
 /**
  * Sends a message to the WebSocket server.
@@ -77,4 +78,12 @@ export async function verifyToken(): Promise<VerifyTokenResult> {
  */
 export async function userExists(username: string): Promise<boolean> {
   return await invoke("user_exists", { username })
+}
+
+/**
+ * Gets information about the current user if it is cached, otherwise queries the database.
+ * @returns information about the user
+ */
+export async function myInfo(): Promise<MyInfoResult> {
+  return await invoke("my_info")
 }

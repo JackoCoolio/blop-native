@@ -13,6 +13,13 @@ use crate::{
 
 pub mod auth;
 
+#[derive(Clone, TS, Serialize, Deserialize)]
+#[ts(export, export_to = "../src/types/user/user.d.ts")]
+pub struct User {
+  pub username: String,
+  pub id: String,
+}
+
 #[derive(Clone, TS, Serialize)]
 #[ts(export, export_to = "../src/types/user/create-user.d.ts")]
 #[serde(rename_all = "camelCase", tag = "result")]
@@ -31,7 +38,7 @@ pub struct AuthenticationSuccessResponse {
   pub token: String,
 }
 
-pub async fn create_user(username: String, password: String) -> Result<CreateUserResult, String> {
+pub async fn create_user(url: &str, username: String, password: String) -> Result<CreateUserResult, String> {
   // validate password, just in case
   if let PasswordValidation::Invalid(crit) = validate_password(&password) {
     return Ok(CreateUserResult::InvalidPassword(crit));
@@ -49,7 +56,7 @@ pub async fn create_user(username: String, password: String) -> Result<CreateUse
   });
 
   match Client::new()
-    .post("http://localhost:8080/auth/create")
+    .post(url)
     .json(&body)
     .send()
     .await

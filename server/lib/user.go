@@ -61,22 +61,27 @@ func CreateUser(username string, hashedPassword string, mongo *MongoDBConnection
 // User information that is safe to give to clients.
 type User struct {
 	// The user ID
-	Id string `bson:"_id"`
+	Id string `bson:"_id" json:"id"`
 	// A unique, user-chosen, human-readable identifier
-	Username string `bson:"username"`
+	Username string `bson:"username" json:"username"`
 }
 
 // User that contains information that is NOT safe to give to clients.
 // Includes hashed password.
+// I wish I didn't have to write the same code twice, but AFAIK unmarshalling a bson.D into a struct with a promoted field doesn't work.
 type UnsafeUser struct {
-	User
+	// The user ID
+	Id string `bson:"_id" json:"id"`
+	// A unique, user-chosen, human-readable identifier
+	Username string `bson:"username" json:"username"`
 	// A hashed version of the user's password
-	HashedPassword string `bson:"password"`
+	HashedPassword string `bson:"password"` // json is purposefully omitted (we should never have to serialize HashedPassword to json)
 }
 
 // Finds the user with the given ID.
 func GetUserById(userId string, mongo *MongoDBConnection) (User, error) {
 	users := mongo.Database().Collection(USERS_COLLECTION)
+	fmt.Printf("id: %v\n", userId)
 
 	// options
 	projection := bson.D{{Key: "password", Value: 0}}
@@ -85,6 +90,7 @@ func GetUserById(userId string, mongo *MongoDBConnection) (User, error) {
 
 	var user User
 	err := users.FindOne(context.TODO(), filter, opts).Decode(&user)
+	fmt.Printf("doc: %v\n", user)
 
 	return user, err
 }
@@ -95,10 +101,10 @@ func GetUserByUsername(username string, mongo *MongoDBConnection) (User, error) 
 	users := mongo.Database().Collection(USERS_COLLECTION)
 
 	// options
-	projection := bson.M{
-		"password": 0, // exclude password!
-	}
-	opts := options.FindOne().SetProjection(projection)
+	// projection := bson.M{
+	// 	"password": 0, // exclude password!
+	// }
+	opts := options.FindOne() //.SetProjection(projection)
 
 	// filter
 	filter := bson.M{
@@ -118,12 +124,12 @@ func GetUserByUsernameUnsafe(username string, mongo *MongoDBConnection) (UnsafeU
 	users := mongo.Database().Collection(USERS_COLLECTION)
 
 	// options
-	projection := bson.M{
-		"_id":      1,
-		"username": 1,
-		"password": 1,
-	}
-	opts := options.FindOne().SetProjection(projection)
+	// projection := bson.M{
+	// 	"_id":      1,
+	// 	"username": 1,
+	// 	"password": 1,
+	// }
+	// opts := options.FindOne().SetProjection(projection)
 
 	// filter
 	filter := bson.M{
@@ -131,7 +137,9 @@ func GetUserByUsernameUnsafe(username string, mongo *MongoDBConnection) (UnsafeU
 	}
 
 	var user UnsafeUser
-	err := users.FindOne(context.TODO(), filter, opts).Decode(&user)
+
+	result := users.FindOne(context.TODO(), filter)
+	err := result.Decode(&user)
 
 	return user, err
 }
