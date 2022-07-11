@@ -45,7 +45,7 @@ $tooltip-margin: 20px;
   z-index: 5000; // if anything else has z-index > 5000, something is very, very wrong
   opacity: 0;
   max-width: 250px;
-  margin-top: $tooltip-margin;
+  margin-top: $tooltip-margin + 3px;
   min-width: 20px;
   min-height: 20px;
   width: fit-content;
@@ -54,7 +54,7 @@ $tooltip-margin: 20px;
   user-select: none;
   font-size: 10pt;
 
-  transition: opacity 0.2s ease;
+  transition: opacity 0.1s ease, margin-top 0.1s ease;
 
   pointer-events: none;
   border-radius: 15px;
@@ -63,4 +63,5 @@ $tooltip-margin: 20px;
 
 .tooltip-content-visible {
   opacity: 1;
+  margin-top: $tooltip-margin;
 }

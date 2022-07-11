@@ -182,7 +182,7 @@ const RegisterSection: Component = () => {
                 if (validation.result === "valid") return null
                 return (
                   <div>
-                    Usernames must:
+                    Your username must:
                     <ul class="list-circle list-inside">
                       <li
                         class={
@@ -200,7 +200,7 @@ const RegisterSection: Component = () => {
                   </div>
                 )
               })(),
-              visibility: "hover",
+              visibility: { type: "hover", delay: 0 },
             },
           }}
         />
@@ -227,7 +227,7 @@ const RegisterSection: Component = () => {
                 if (validation.result === "valid") return // this is impossible, but needed for type inference
                 return (
                   <div>
-                    Passwords must:
+                    Your password must:
                     <ul class="list-circle list-inside">
                       <li
                         class={
@@ -257,7 +257,7 @@ const RegisterSection: Component = () => {
                   </div>
                 )
               })(),
-              visibility: "hover",
+              visibility: { type: "hover", delay: 0 },
             },
           }}
           validateDelay={600}
@@ -288,7 +288,7 @@ const RegisterSection: Component = () => {
               content: (
                 <div>Your password and confirmed password don't match!</div>
               ),
-              visibility: "hover",
+              visibility: { type: "hover", delay: 0 },
             },
           }}
         />
@@ -300,6 +300,10 @@ const RegisterSection: Component = () => {
           }}
           enabled={enabled()}
           onClick={handleCreateUser}
+          tooltip={{
+            visibility: { type: "hover" },
+            text: "One or more fields don't meet the requirements. Please fix them and try again.",
+          }}
         />
       </div>
     </div>
