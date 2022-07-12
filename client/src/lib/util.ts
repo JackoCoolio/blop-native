@@ -17,3 +17,8 @@ export function maybeObjectAccess<K extends keyof O, O>(
   }
   return defaultValue
 }
+
+/**
+ * Removes key K from type T.
+ */
+export type Without<T, K> = Pick<T, Exclude<keyof T, K>>

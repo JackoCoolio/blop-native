@@ -20,32 +20,50 @@ import { UsernameValidation } from "../types/user/error/username-validation"
 import PlusIcon from "../assets/plus.svg"
 import ProfileIcon from "../assets/profile.svg"
 import CheckIcon from "../assets/check.svg"
+import { useNavigate, useSearchParams } from "solid-app-router"
 
 /** How long we wait before assuming that the user has stopped typing. */
 const USER_TYPING_COOLDOWN = 600
 
-const AuthorizationPage: Component = () => {
+type Props = {
+  redirect?: string
+}
+
+const AuthorizationPage: Component<Props> = ({ redirect }) => {
+  const [params] = useSearchParams()
+
+  // if redirect is a query param, use that
+  // we should never have both a redirect query param and a redirect prop at the same time
+  if (params.redirect) {
+    redirect = params.redirect
+  }
+
   return (
     <div
       id="authorization-page"
       class="flex flex-row flex-wrap h-full justify-evenly overflow-y-auto"
     >
-      <LoginSection />
+      <LoginSection redirect={redirect} />
       <div class="h-9/10 w-1px bg-$light-background my-auto"></div>
-      <RegisterSection />
+      <RegisterSection redirect={redirect} />
     </div>
   )
 }
 
-const LoginSection: Component = () => {
+const LoginSection: Component<Props> = ({ redirect }) => {
   const [usernameValid, setUsernameValid] = createSignal(false)
   const [passwordValid, setPasswordValid] = createSignal(false)
 
   const [username, setUsername] = createSignal("")
   const [password, setPassword] = createSignal("")
 
+  const navigate = useNavigate()
+
   const submitHandler = async () => {
-    await login(username(), password())
+    const result = await login(username(), password())
+    if (result.result === "authorized") {
+      navigate(redirect ?? "/", { resolve: false })
+    }
   }
 
   return (
@@ -96,7 +114,7 @@ const LoginSection: Component = () => {
   )
 }
 
-const RegisterSection: Component = () => {
+const RegisterSection: Component<Props> = ({ redirect }) => {
   const [enabled, setEnabled] = createSignal(false)
 
   const [usernameValidation, setUsernameValidation] =
@@ -129,8 +147,15 @@ const RegisterSection: Component = () => {
   let userExistsTimer: number | undefined
   onCleanup(() => clearTimeout(userExistsTimer))
 
+  const navigate = useNavigate()
+
   const handleCreateUser = async () => {
-    if (enabled()) await createUser(username(), password())
+    if (enabled()) {
+      const result = await createUser(username(), password())
+      if (result.result === "success") {
+        navigate(redirect ?? "/", { resolve: false })
+      }
+    }
   }
 
   // after validation changes, recompute button enabled state

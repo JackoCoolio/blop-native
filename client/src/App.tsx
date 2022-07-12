@@ -1,6 +1,7 @@
 import { Component, lazy } from "solid-js"
 import { Route, Routes } from "solid-app-router"
 import { listen } from "@tauri-apps/api/event"
+import { AuthenticationEnforcer } from "./lib/auth"
 
 // lazy loading pages
 const Game = lazy(() => import("./pages/Game"))
@@ -24,7 +25,16 @@ const App: Component = () => {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/auth" element={<Authorization />} />
-      <Route path="/game/:id" element={<Game id="foo" />} />
+      <Route
+        path="/game/:id"
+        element={
+          <AuthenticationEnforcer
+            page={Game}
+            props={{ id: "foo" }}
+            fallback={<div>loading</div>}
+          />
+        }
+      />
     </Routes>
   )
 }
