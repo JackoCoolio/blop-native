@@ -43,9 +43,7 @@ export const Navbar: Component = () => {
             navigate("/")
           }}
         />
-        <For each={buttons}>
-          {(button) => <Button {...button} />}
-        </For>
+        <For each={buttons}>{(button) => <Button {...button} />}</For>
       </div>
       <div class="navbar-section flex flex-row flex-nowrap justify-end">
         <ProfileSection />

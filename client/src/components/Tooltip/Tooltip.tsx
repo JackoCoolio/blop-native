@@ -10,14 +10,17 @@ import {
 } from "solid-js"
 import { BlopColor, colorToClass } from "../../lib/themes"
 
-export type TooltipVisibility = {
-  type: "always",
-} | {
-  type: "hover",
-  delay?: number,
-} | {
-  type: "never",
-}
+export type TooltipVisibility =
+  | {
+      type: "always"
+    }
+  | {
+      type: "hover"
+      delay?: number
+    }
+  | {
+      type: "never"
+    }
 
 interface Props {
   visibility: TooltipVisibility
@@ -43,31 +46,34 @@ export const Tooltip: ParentComponent<Props> = (props: ParentProps<Props>) => {
 
   // we can't use <Show> here because it causes an error with replaceChild()
   if (props.visibility.type !== "never") {
-    return <div class="tooltip">
-      {tooltipHolder}
-      <div
-        class="tooltip-activator"
-        onMouseEnter={() => {
-          props.visibility.type === "hover" && setTimer(props.visibility.delay ?? 0)
-        }}
-        onMouseLeave={() => {
-          setHovering(false)
-          clearTimeout(hoverTimer)
-        }}
-      />
-      <div class="tooltip-anchor">
+    return (
+      <div class="tooltip">
+        {tooltipHolder}
         <div
-          class={`${colorClass} tooltip-content ${
-            hovering() || props.visibility.type === "always"
-              ? "tooltip-content-visible"
-              : ""
-          }`}
-        >
-          <div class="tooltip-point" />
-          {tooltipContent}
+          class="tooltip-activator"
+          onMouseEnter={() => {
+            props.visibility.type === "hover" &&
+              setTimer(props.visibility.delay ?? 0)
+          }}
+          onMouseLeave={() => {
+            setHovering(false)
+            clearTimeout(hoverTimer)
+          }}
+        />
+        <div class="tooltip-anchor">
+          <div
+            class={`${colorClass} tooltip-content ${
+              hovering() || props.visibility.type === "always"
+                ? "tooltip-content-visible"
+                : ""
+            }`}
+          >
+            <div class="tooltip-point" />
+            {tooltipContent}
+          </div>
         </div>
       </div>
-    </div>
+    )
   } else {
     return tooltipHolder
   }

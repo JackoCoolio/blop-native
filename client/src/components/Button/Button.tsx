@@ -24,9 +24,9 @@ interface Props {
    * The tooltip that shows when the button is disabled.
    */
   tooltip?: {
-    visibility: TooltipVisibility,
+    visibility: TooltipVisibility
     text: string // this could also be a JSX.Element
-  },
+  }
   text?: string
   color?: BlopColor
   onClick?: JSX.EventHandler<HTMLDivElement, MouseEvent>
@@ -45,13 +45,19 @@ export const Button: Component<Props> = (props) => {
   const Icon = props.icon?.elt
   const enabled = createMemo(() => props.enabled ?? true)
 
-  const onClick: NonNullable<typeof props.onClick> = (e) => props.onClick && props.onClick(e)
+  const onClick: NonNullable<typeof props.onClick> = (e) =>
+    props.onClick && props.onClick(e)
 
-  // createMemo is needed here 
-  const tooltipConfig = createMemo(() => enabled() ? undefined : props.tooltip)
+  // createMemo is needed here
+  const tooltipConfig = createMemo(() =>
+    enabled() ? undefined : props.tooltip,
+  )
 
   return (
-    <Tooltip visibility={tooltipConfig()?.visibility ?? { type: "never" }} color="alpha">
+    <Tooltip
+      visibility={tooltipConfig()?.visibility ?? { type: "never" }}
+      color="alpha"
+    >
       {tooltipConfig()?.text && <p>{tooltipConfig()?.text}</p>}
       <button
         class={`${

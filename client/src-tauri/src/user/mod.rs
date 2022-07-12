@@ -38,7 +38,11 @@ pub struct AuthenticationSuccessResponse {
   pub token: String,
 }
 
-pub async fn create_user(url: &str, username: String, password: String) -> Result<CreateUserResult, String> {
+pub async fn create_user(
+  url: &str,
+  username: String,
+  password: String,
+) -> Result<CreateUserResult, String> {
   // validate password, just in case
   if let PasswordValidation::Invalid(crit) = validate_password(&password) {
     return Ok(CreateUserResult::InvalidPassword(crit));
@@ -55,12 +59,7 @@ pub async fn create_user(url: &str, username: String, password: String) -> Resul
     "password": password,
   });
 
-  match Client::new()
-    .post(url)
-    .json(&body)
-    .send()
-    .await
-  {
+  match Client::new().post(url).json(&body).send().await {
     // we got a response
     Ok(x) => {
       match x.status() {

@@ -18,7 +18,8 @@ use crate::{
     },
     create_user as _create_user, AuthenticationSuccessResponse, CreateUserResult, User,
   },
-  websocket::WebSocketState, Config,
+  websocket::WebSocketState,
+  Config,
 };
 
 #[tauri::command]
@@ -43,7 +44,12 @@ pub async fn create_user(
     return Ok(CreateUserResult::AlreadyLoggedIn);
   }
 
-  let create_user_result = _create_user(&config_state.get_api_url("/auth/create"), username, password).await;
+  let create_user_result = _create_user(
+    &config_state.get_api_url("/auth/create"),
+    username,
+    password,
+  )
+  .await;
 
   match &create_user_result {
     Ok(x) => match x {
@@ -59,7 +65,10 @@ pub async fn create_user(
 }
 
 #[tauri::command]
-pub async fn user_exists(config_state: State<'_, Config>, username: String) -> Result<bool, String> {
+pub async fn user_exists(
+  config_state: State<'_, Config>,
+  username: String,
+) -> Result<bool, String> {
   // TODO: don't just Ok this
   Ok(_user_exists(&config_state.get_api_url("/user/getid"), &username).await)
 }
@@ -179,7 +188,10 @@ pub enum MyInfoResult {
 }
 
 #[tauri::command]
-pub async fn my_info(auth_state: State<'_, AuthenticationState>, config_state: State<'_, Config>) -> Result<MyInfoResult, String> {
+pub async fn my_info(
+  auth_state: State<'_, AuthenticationState>,
+  config_state: State<'_, Config>,
+) -> Result<MyInfoResult, String> {
   // TODO: figure out locks here. maybe rework/replace optionalstate
   let token = match auth_state.get_token().await {
     None => {
@@ -191,10 +203,11 @@ pub async fn my_info(auth_state: State<'_, AuthenticationState>, config_state: S
 
   // TODO: don't unwrap. this is bad
   let resp = Client::new()
-  .get(config_state.get_api_url("/user/me"))
-  .bearer_auth(token)
-  .send()
-  .await.unwrap();
+    .get(config_state.get_api_url("/user/me"))
+    .bearer_auth(token)
+    .send()
+    .await
+    .unwrap();
 
   match resp.status() {
     StatusCode::OK => {

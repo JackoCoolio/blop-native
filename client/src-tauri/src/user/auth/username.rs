@@ -69,12 +69,7 @@ pub async fn user_exists(url: &str, username: &str) -> bool {
     "username": username,
   });
 
-  let out = match Client::new()
-    .get(url)
-    .json(&body)
-    .send()
-    .await
-  {
+  let out = match Client::new().get(url).json(&body).send().await {
     // fallback is that user doesn't exist
     Err(_) => false,
     Ok(x) => {

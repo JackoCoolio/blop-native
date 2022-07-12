@@ -26,7 +26,11 @@ pub struct Config {
 impl Config {
   /// Gets the URL for the given API endpoint.
   pub fn get_api_url(&self, endpoint: &str) -> String {
-    format!("{}/{}", self.api_url.trim_end_matches('/'), endpoint.trim_start_matches('/'))
+    format!(
+      "{}/{}",
+      self.api_url.trim_end_matches('/'),
+      endpoint.trim_start_matches('/')
+    )
   }
 }
 
