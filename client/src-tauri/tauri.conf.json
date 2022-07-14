@@ -7,7 +7,7 @@
     "distDir": "../dist"
   },
   "package": {
-    "productName": "Blop",
+    "productName": "blop",
     "version": "0.1.0"
   },
   "tauri": {
@@ -60,7 +60,7 @@
       {
         "fullscreen": false,
         "resizable": true,
-        "title": "Blop",
+        "title": "blop",
         "width": 800,
         "height": 600,
         "minWidth": 800,
