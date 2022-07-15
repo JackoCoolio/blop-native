@@ -4,9 +4,9 @@ import { listen } from "@tauri-apps/api/event"
 import { AuthenticationEnforcer } from "./lib/auth"
 
 // lazy loading pages
-const Game = lazy(() => import("./pages/Game"))
-const Home = lazy(() => import("./pages/Home"))
-const Authorization = lazy(() => import("./pages/Authorization"))
+const GamePage = lazy(() => import("./pages/Game"))
+const HomePage = lazy(() => import("./pages/Home"))
+const AuthorizationPage = lazy(() => import("./pages/Authorization"))
 
 const App: Component = () => {
   // disable context menu (right click)
@@ -23,13 +23,13 @@ const App: Component = () => {
 
   return (
     <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/auth" element={<Authorization />} />
+      <Route path="/" element={<HomePage />} />
+      <Route path="/auth" element={<AuthorizationPage />} />
       <Route
         path="/game/:id"
         element={
           <AuthenticationEnforcer
-            page={Game}
+            page={GamePage}
             props={{ id: "foo" }}
             fallback={<div>loading</div>}
           />

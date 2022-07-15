@@ -1,5 +1,5 @@
 import { Component, lazy, Suspense } from "solid-js"
-import { AuthenticatedPageProps } from "../lib/auth"
+import { AuthenticatedComponent } from "../lib/auth"
 import { LazyComponent } from "../lib/lazy"
 
 enum GameType {
@@ -48,11 +48,11 @@ function getGameComponent(id: string): LazyComponent<GameProps> {
   })
 }
 
-export type GameProps = AuthenticatedPageProps & {
+export type GameProps = {
   id: string
 }
 
-const GamePage: Component<GameProps> = (props: GameProps) => {
+const GamePage: AuthenticatedComponent<GameProps> = (props) => {
   const GameComponent = getGameComponent(props.id)
 
   return (

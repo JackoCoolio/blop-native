@@ -5,6 +5,8 @@ import { JSX } from "solid-js"
 import { useNavigate } from "solid-app-router"
 import { User } from "../types/user/user"
 
+export type AuthenticatedComponent<T = unknown> = Component<T & AuthenticatedPageProps>
+
 export type AuthenticatedPageProps = {
   user: User
 }
