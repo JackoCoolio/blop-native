@@ -5,7 +5,9 @@ import { JSX } from "solid-js"
 import { useNavigate } from "solid-app-router"
 import { User } from "../types/user/user"
 
-export type AuthenticatedComponent<T = unknown> = Component<T & AuthenticatedPageProps>
+export type AuthenticatedComponent<T = unknown> = Component<
+  T & AuthenticatedPageProps
+>
 
 export type AuthenticatedPageProps = {
   user: User
@@ -23,7 +25,7 @@ type AuthenticationEnforcerProps<P extends AuthenticatedPageProps> = {
   /**
    * The props to pass to the page.
    */
-  props: Without<P, "user">
+  props?: Without<P, "user"> // it would be great to make this optional only when it's {}
   /**
    * The page to redirect to after the user is authenticated.
    */
