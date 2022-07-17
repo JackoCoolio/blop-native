@@ -3,6 +3,7 @@ import "./button.scss"
 import { Component, createMemo, JSX } from "solid-js"
 import { colorToClass, BlopColor } from "../../lib/themes"
 import Tooltip, { TooltipVisibility } from "../Tooltip"
+import Header from "../Header"
 
 interface IconOptions {
   /**
@@ -80,7 +81,12 @@ export const Button: Component<Props> = (props) => {
               }}
             />
           )}
-          {props.text && <span class="button-text">{props.text}</span>}
+          {/* {props.text && <span class="button-text">{props.text}</span>} */}
+          {props.text && (
+            <Header class="button-text" color={props.color}>
+              {props.text}
+            </Header>
+          )}
         </div>
       </button>
     </Tooltip>

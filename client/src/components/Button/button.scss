@@ -25,8 +25,6 @@ $shadow-distance: 3px;
   width: fit-content;
 
   color: var(--text);
-  text-shadow: 0px $shadow-distance var(--d),
-    0px ($shadow-distance - 1px) var(--d);
   font-size: 14pt;
   user-select: none;
 
