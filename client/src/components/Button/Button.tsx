@@ -58,8 +58,8 @@ export const Button: Component<Props> = (props) => {
     <Tooltip
       visibility={tooltipConfig()?.visibility ?? { type: "never" }}
       color="alpha"
+      content={tooltipConfig()?.text && <p>{tooltipConfig()?.text}</p>}
     >
-      {tooltipConfig()?.text && <p>{tooltipConfig()?.text}</p>}
       <button
         class={`${
           enabled() ? colorToClass(props.color) : "button-disabled"

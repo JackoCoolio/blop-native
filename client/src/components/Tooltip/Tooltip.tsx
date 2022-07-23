@@ -25,12 +25,12 @@ export type TooltipVisibility =
 interface Props {
   visibility: TooltipVisibility
   color: BlopColor
-  children: JSX.Element[]
+  children: JSX.Element
+  content: JSX.Element
 }
 
 export const Tooltip: ParentComponent<Props> = (props: ParentProps<Props>) => {
-  const tooltipContent = children(() => props.children[0])
-  const tooltipHolder = children(() => props.children[1])
+  const tooltipHolder = children(() => props.children)
 
   const [hovering, setHovering] = createSignal(false)
   let hoverTimer: number | undefined
@@ -69,7 +69,7 @@ export const Tooltip: ParentComponent<Props> = (props: ParentProps<Props>) => {
             }`}
           >
             <div class="tooltip-point" />
-            {tooltipContent}
+            {props.content}
           </div>
         </div>
       </div>

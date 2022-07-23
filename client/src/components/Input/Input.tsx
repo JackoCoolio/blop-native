@@ -157,37 +157,34 @@ export const InputValidationIcon: Component<InputValidationIconProps> = (
   props,
 ) => {
   const colorClass = colorToClass(props.color)
-
   return (
-    <>
-      <div class="input-valid-container-window">
-        <div
-          class={`${colorClass} input-valid-container`}
-          style={{ top: `${-getOffsetFromValidationState(props.state)}px` }}
+    <div class="input-valid-container-window">
+      <div
+        class={`${colorClass} input-valid-container`}
+        style={{ top: `${-getOffsetFromValidationState(props.state)}px` }}
+      >
+        <Tooltip
+          visibility={props.tooltips?.valid?.visibility ?? { type: "never" }}
+          color="alpha"
+          content={props.tooltips?.valid?.content}
         >
-          <Tooltip
-            visibility={props.tooltips?.valid?.visibility ?? { type: "never" }}
-            color="alpha"
-          >
-            {props.tooltips?.valid?.content}
-            <CheckIcon class="input-valid-icon" />
-          </Tooltip>
-          <Tooltip
-            visibility={props.tooltips?.valid?.visibility ?? { type: "never" }}
-            color="epsilon"
-          >
-            {props.tooltips?.unknown?.content}
-            <DotsIcon class="input-valid-icon" />
-          </Tooltip>
-          <Tooltip
-            visibility={props.tooltips?.valid?.visibility ?? { type: "never" }}
-            color="beta"
-          >
-            {props.tooltips?.invalid?.content}
-            <XIcon class="input-valid-icon" />
-          </Tooltip>
-        </div>
+          <CheckIcon class="input-valid-icon" />
+        </Tooltip>
+        <Tooltip
+          visibility={props.tooltips?.valid?.visibility ?? { type: "never" }}
+          color="epsilon"
+          content={props.tooltips?.unknown?.content}
+        >
+          <DotsIcon class="input-valid-icon" />
+        </Tooltip>
+        <Tooltip
+          visibility={props.tooltips?.valid?.visibility ?? { type: "never" }}
+          color="beta"
+          content={props.tooltips?.invalid?.content}
+        >
+          <XIcon class="input-valid-icon" />
+        </Tooltip>
       </div>
-    </>
+    </div>
   )
 }
