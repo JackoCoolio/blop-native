@@ -166,21 +166,21 @@ export const InputValidationIcon: Component<InputValidationIconProps> = (
           style={{ top: `${-getOffsetFromValidationState(props.state)}px` }}
         >
           <Tooltip
-            visibility={props.tooltips?.valid?.visibility ?? "never"}
+            visibility={props.tooltips?.valid?.visibility ?? { type: "never" }}
             color="alpha"
           >
             {props.tooltips?.valid?.content}
             <CheckIcon class="input-valid-icon" />
           </Tooltip>
           <Tooltip
-            visibility={props.tooltips?.unknown?.visibility ?? "never"}
+            visibility={props.tooltips?.valid?.visibility ?? { type: "never" }}
             color="epsilon"
           >
             {props.tooltips?.unknown?.content}
             <DotsIcon class="input-valid-icon" />
           </Tooltip>
           <Tooltip
-            visibility={props.tooltips?.invalid?.visibility ?? "never"}
+            visibility={props.tooltips?.valid?.visibility ?? { type: "never" }}
             color="beta"
           >
             {props.tooltips?.invalid?.content}
