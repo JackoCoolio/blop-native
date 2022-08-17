@@ -7,6 +7,7 @@ import {
 } from "solid-js"
 import Button from "../components/Button"
 import Input from "../components/Input"
+
 import {
   createUser,
   login,
@@ -21,6 +22,7 @@ import PlusIcon from "../assets/plus.svg"
 import ProfileIcon from "../assets/profile.svg"
 import CheckIcon from "../assets/check.svg"
 import { useNavigate, useSearchParams } from "solid-app-router"
+import { createLengthValidator } from "../components/Input/validator"
 
 /** How long we wait before assuming that the user has stopped typing. */
 const USER_TYPING_COOLDOWN = 600
@@ -79,12 +81,10 @@ const LoginSection: Component<Props> = ({ redirect }) => {
           label="username"
           placeholder="your username"
           spellcheck={false}
-          onInput={(e) =>
-            batch(() => {
-              setUsernameValid(e.currentTarget.value.length >= 4)
-              setUsername(e.currentTarget.value)
-            })
-          }
+          validators={[createLengthValidator(4, 16)]}
+          onAfterValidate={(valid) => setUsernameValid(valid === "valid")}
+          hideValidation
+          onInput={(e) => setUsername(e.currentTarget.value)}
           class="mb-20px"
         />
         <Input
@@ -92,12 +92,12 @@ const LoginSection: Component<Props> = ({ redirect }) => {
           label="password"
           placeholder="your password"
           spellcheck={false}
-          onInput={(e) =>
-            batch(() => {
-              setPasswordValid(e.currentTarget.value.length >= 8)
-              setPassword(e.currentTarget.value)
-            })
-          }
+          validators={[createLengthValidator(8, null)]}
+          hideValidation
+          onAfterValidate={(result) => {
+            setPasswordValid(result === "valid")
+          }}
+          onInput={(e) => setPassword(e.currentTarget.value)}
           onEnter={submitHandler}
           password
           class="mb-20px"
@@ -123,6 +123,7 @@ const RegisterSection: Component<Props> = ({ redirect }) => {
       length: false,
       charset: true,
     })
+  const [usernameIsUnique, setUsernameIsUnique] = createSignal(true)
 
   const [passwordValidation, setPasswordValidation] =
     createSignal<PasswordValidation>({
@@ -140,8 +141,6 @@ const RegisterSection: Component<Props> = ({ redirect }) => {
 
   const [username, setUsername] = createSignal("")
   const [password, setPassword] = createSignal("")
-
-  const confirmPasswordRef: Ref<typeof Input> = undefined
 
   // timer that fires whenever the user stops typing
   let userExistsTimer: number | undefined
@@ -190,36 +189,56 @@ const RegisterSection: Component<Props> = ({ redirect }) => {
           placeholder="your username here"
           spellcheck={false}
           onInput={() => setEnabled(false)}
-          validate={async (value) => {
-            const valid = await validateUsername(value)
-            batch(() => {
-              setUsername(value)
-              setUsernameValidation(valid)
-            })
-            const exists = await userExists(value)
-            return exists ? "invalid" : valid.result
-          }}
+          validators={[
+            async (value) => {
+              const valid = await validateUsername(value)
+              const unique = !(await userExists(value))
+
+              console.log({ valid, unique })
+
+              batch(() => {
+                setUsername(value)
+                setUsernameValidation(valid)
+                setUsernameIsUnique(unique)
+              })
+
+              return !unique ? "invalid" : valid.result
+            },
+          ]}
           validateDelay={USER_TYPING_COOLDOWN}
           tooltips={{
             invalid: {
               content: (() => {
                 const validation = usernameValidation()
-                if (validation.result === "valid") return null
+                const _usernameIsUnique = usernameIsUnique()
+                if (validation.result === "valid" && _usernameIsUnique)
+                  return null
+
                 return (
                   <div>
                     Your username must:
                     <ul class="list-circle list-inside">
                       <li
                         class={
-                          validation.charset && username().length > 0
+                          validation.result === "valid" ||
+                          (validation.charset && username().length > 0)
                             ? "opacity-30"
                             : ""
                         }
                       >
                         be alphanumeric
                       </li>
-                      <li class={validation.length ? "opacity-30" : ""}>
+                      <li
+                        class={
+                          validation.result === "valid" || validation.length
+                            ? "opacity-30"
+                            : ""
+                        }
+                      >
                         be between 4 and 16 characters long
+                      </li>
+                      <li class={_usernameIsUnique ? "opacity-30" : ""}>
+                        be unique
                       </li>
                     </ul>
                   </div>
@@ -237,18 +256,22 @@ const RegisterSection: Component<Props> = ({ redirect }) => {
           password
           spellcheck={false}
           onInput={() => setEnabled(false)}
-          validate={async (value) => {
-            const valid = await validatePassword(value)
-            batch(() => {
-              setPassword(value)
-              setPasswordValidation(valid)
-            })
-            return valid.result
-          }}
+          validators={[
+            async (value) => {
+              const valid = await validatePassword(value)
+              batch(() => {
+                console.log({ value, valid })
+                setPassword(value)
+                setPasswordValidation(valid)
+              })
+              return valid.result
+            },
+          ]}
           tooltips={{
             invalid: {
               content: (() => {
                 const validation = passwordValidation()
+                console.log({ validation })
                 if (validation.result === "valid") return // this is impossible, but needed for type inference
                 return (
                   <div>
@@ -288,7 +311,6 @@ const RegisterSection: Component<Props> = ({ redirect }) => {
           validateDelay={600}
         />
         <Input
-          ref={confirmPasswordRef}
           class="mb-20px"
           color="delta"
           label="confirm password"
@@ -297,17 +319,19 @@ const RegisterSection: Component<Props> = ({ redirect }) => {
           spellcheck={false}
           onEnter={handleCreateUser}
           onInput={() => setEnabled(false)}
-          validate={async (value) => {
-            if (value === password() && value !== "") {
-              setConfirmMatches(true)
-              return "valid"
-            }
-            setConfirmMatches(false)
-            if (value === "") {
-              return "unknown"
-            }
-            return "invalid"
-          }}
+          validators={[
+            async (value) => {
+              if (value === password() && value !== "") {
+                setConfirmMatches(true)
+                return "valid"
+              }
+              setConfirmMatches(false)
+              if (value === "") {
+                return "unknown"
+              }
+              return "invalid"
+            },
+          ]}
           tooltips={{
             invalid: {
               content: (

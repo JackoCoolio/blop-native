@@ -6,7 +6,6 @@ import {
   createSignal,
   JSX,
   onCleanup,
-  Setter,
   Show,
 } from "solid-js"
 import { BlopColor, colorToClass } from "../../lib/themes"
@@ -15,9 +14,11 @@ import CheckIcon from "../../assets/check.svg"
 import XIcon from "../../assets/x-thin.svg"
 import DotsIcon from "../../assets/dots.svg"
 import Tooltip, { TooltipVisibility } from "../Tooltip"
-
-export type ValidationState = "valid" | "invalid" | "unknown"
-type Validator = (value: string) => Promise<ValidationState>
+import {
+  calculateValidation,
+  ValidationState,
+  MaybeCallbackValidator,
+} from "./validator"
 
 type Tooltips = {
   [state in ValidationState]?: {
@@ -34,21 +35,15 @@ interface InputProps {
   maxLength?: number
   spellcheck?: boolean
   validateDelay?: number
-  validate?: Validator
+  validators?: MaybeCallbackValidator[]
+  hideValidation?: boolean
   class?: string
   style?: JSX.CSSProperties
   tooltips?: Tooltips
   onInput?: JSX.EventHandlerUnion<HTMLInputElement, InputEvent>
-  onEnter?: (value: string) => void
-}
-
-async function updateValidation(
-  value: string,
-  validator: Validator | undefined,
-  setValidation: Setter<ValidationState>,
-) {
-  const valid = validator && (await validator(value))
-  setValidation(valid ?? "unknown")
+  onAfterValidate?: (valid: ValidationState, value: string) => unknown
+  onEnter?: (value: string) => unknown
+  ref?: Ref<HTMLInputElement>
 }
 
 export const Input: Component<InputProps> = (props) => {
@@ -59,8 +54,11 @@ export const Input: Component<InputProps> = (props) => {
     equals: false,
   })
 
-  createEffect(
-    async () => await updateValidation("", props.validate, setValidation),
+  // whether we have at least one validator
+  const hasValidator = () => !!props.validators && props.validators.length > 0
+
+  createEffect(async () =>
+    setValidation(await calculateValidation("", props.validators)),
   )
 
   let typingTimer: number | undefined
@@ -101,6 +99,13 @@ export const Input: Component<InputProps> = (props) => {
               typeof props.onInput === "function" && props.onInput(e)
 
               const value = e.currentTarget.value
+
+              // check if we should validate
+              if (!hasValidator()) {
+                return
+              }
+
+              // show pending icon while we calculate validity
               if (props.validateDelay !== 0) {
                 setValidation("unknown")
               }
@@ -113,13 +118,16 @@ export const Input: Component<InputProps> = (props) => {
               // set the timer
               typingTimer = setTimeout(async () => {
                 typingTimer = undefined
-                updateValidation(value, props.validate, setValidation)
+                const state = await calculateValidation(value, props.validators)
+                props.onAfterValidate?.(state, value)
+                setValidation(state)
               }, props.validateDelay ?? 0)
             }}
             onFocusIn={() => setFocused(true)}
             onFocusOut={() => setFocused(false)}
+            ref={props.ref}
           />
-          <Show when={props.validate}>
+          <Show when={!props.hideValidation && hasValidator()}>
             <InputValidationIcon
               state={validation()}
               color={props.color}
@@ -171,14 +179,14 @@ export const InputValidationIcon: Component<InputValidationIconProps> = (
           <CheckIcon class="input-valid-icon" />
         </Tooltip>
         <Tooltip
-          visibility={props.tooltips?.valid?.visibility ?? { type: "never" }}
+          visibility={props.tooltips?.unknown?.visibility ?? { type: "never" }}
           color="epsilon"
           content={props.tooltips?.unknown?.content}
         >
           <DotsIcon class="input-valid-icon" />
         </Tooltip>
         <Tooltip
-          visibility={props.tooltips?.valid?.visibility ?? { type: "never" }}
+          visibility={props.tooltips?.invalid?.visibility ?? { type: "never" }}
           color="beta"
           content={props.tooltips?.invalid?.content}
         >

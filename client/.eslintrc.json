@@ -13,7 +13,9 @@
   "rules": {
     "indent": ["error", 2, { "SwitchCase": 1 }],
     "quotes": ["error", "double"],
-    "semi": ["error", "never"]
+    "semi": ["error", "never"],
+    "prefer-const": "off",
+    "@typescript-eslint/no-non-null-assertion": "off"
   },
   "ignorePatterns": ["src/types/**/*.d.ts", "src/events/**/*.d.ts"]
 }
